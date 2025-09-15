@@ -6,16 +6,17 @@
         height: 100vh;
         margin: 0;
         background-color: #000;
+        cursor: default;
     }
 
     .game-container {
-        width: 400px;
-        height: 600px;
-        border: 2px solid #fff;
+        width: 100vw;
+        height: 100vh;
+        border: none;
         position: relative;
         overflow: hidden;
         background: linear-gradient(to bottom, #1a237e, #4a148c);
-        cursor: default; /* Changed cursor to default */
+        touch-action: none; /* Prevents default mobile actions like scrolling */
     }
 
     #player {
@@ -87,19 +88,28 @@
     const gameOverScreen = document.getElementById('gameOverScreen');
     let isAlive = true;
 
+    // Mouse movement
     document.addEventListener('mousemove', (e) => {
         if (!isAlive) return;
-        const containerRect = gameContainer.getBoundingClientRect();
-        const mouseX = e.clientX - containerRect.left;
-        
-        let newLeft = mouseX - player.offsetWidth / 2;
-        if (newLeft < 0) {
-            newLeft = 0;
-        } else if (newLeft + player.offsetWidth > containerRect.width) {
-            newLeft = containerRect.width - player.offsetWidth;
-        }
-        player.style.left = newLeft + 'px';
+        updatePlayerPosition(e.clientX);
     });
+
+    // Touch movement
+    document.addEventListener('touchmove', (e) => {
+        if (!isAlive) return;
+        e.preventDefault(); // Prevents page scrolling
+        const touchX = e.touches[0].clientX;
+        updatePlayerPosition(touchX);
+    });
+
+    function updatePlayerPosition(x) {
+        const containerRect = gameContainer.getBoundingClientRect();
+        const newLeft = x - containerRect.left - player.offsetWidth / 2;
+        
+        if (newLeft >= 0 && newLeft + player.offsetWidth <= containerRect.width) {
+            player.style.left = newLeft + 'px';
+        }
+    }
 
     function createBullet() {
         if (!isAlive) return;
