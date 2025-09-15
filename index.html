@@ -1,157 +1,155 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galactic Escape</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #000;
-        }
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #000;
+    }
 
-        .game-container {
-            width: 400px;
-            height: 600px;
-            border: 2px solid #fff;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(to bottom, #1a237e, #4a148c);
-            cursor: crosshair;
-        }
+    .game-container {
+        width: 400px;
+        height: 600px;
+        border: 2px solid #fff;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(to bottom, #1a237e, #4a148c);
+        cursor: default; /* Changed cursor to default */
+    }
 
-        #player {
-            width: 40px;
-            height: 60px;
-            background-color: #e0f7fa;
-            position: absolute;
-            left: 50%;
-            bottom: 20px;
-            transform: translateX(-50%);
-            border-radius: 5px;
-            box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
-        }
+    #player {
+        width: 40px;
+        height: 60px;
+        background-color: #e0f7fa;
+        position: absolute;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        border-radius: 5px;
+        box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
+    }
 
-        .bullet {
-            width: 5px;
-            height: 20px;
-            background-color: #ff5252;
-            position: absolute;
-            top: -20px;
-            box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
-        }
+    .bullet {
+        width: 5px;
+        height: 20px;
+        background-color: #ff5252;
+        position: absolute;
+        top: -20px;
+        box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
+    }
 
-        .game-over-screen {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            z-index: 100;
-            color: white;
-            font-size: 2em;
-        }
+    .game-over-screen {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        z-index: 100;
+        color: white;
+        font-size: 2em;
+    }
 
-        .restart-button {
-            padding: 10px 20px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border: 2px solid white;
-            background-color: #2196F3;
-            color: white;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-        }
+    .restart-button {
+        padding: 10px 20px;
+        font-size: 1.2em;
+        cursor: pointer;
+        border: 2px solid white;
+        background-color: #2196F3;
+        color: white;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
 
-        .restart-button:hover {
-            background-color: #0d47a1;
-        }
-    </style>
-</head>
-<body>
-    <div class="game-container">
-        <div id="player"></div>
-    </div>
-    <div id="gameOverScreen" class="game-over-screen">
-        <div class="game-over-text">Game Over!</div>
-        <button class="restart-button" onclick="location.reload()">Restart</button>
-    </div>
+    .restart-button:hover {
+        background-color: #0d47a1;
+    }
+</style>
 
-    <script>
-        const gameContainer = document.querySelector('.game-container');
-        const player = document.getElementById('player');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        let isAlive = true;
+<div class="game-container">
+    <div id="player"></div>
+</div>
+<div id="gameOverScreen" class="game-over-screen">
+    <div class="game-over-text">Game Over!</div>
+    <button class="restart-button" onclick="location.reload()">Restart</button>
+</div>
 
-        document.addEventListener('mousemove', (e) => {
-            if (!isAlive) return;
-            const containerRect = gameContainer.getBoundingClientRect();
-            const mouseX = e.clientX - containerRect.left;
-            player.style.left = mouseX - player.offsetWidth / 2 + 'px';
-        });
+<script>
+    const gameContainer = document.querySelector('.game-container');
+    const player = document.getElementById('player');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    let isAlive = true;
 
-        function createBullet() {
-            if (!isAlive) return;
-            const bullet = document.createElement('div');
-            bullet.classList.add('bullet');
-            gameContainer.appendChild(bullet);
-
-            const randomX = Math.random() * (gameContainer.offsetWidth - bullet.offsetWidth);
-            bullet.style.left = randomX + 'px';
-
-            let bulletY = -20;
-            const bulletMoveInterval = setInterval(() => {
-                if (!isAlive) {
-                    clearInterval(bulletMoveInterval);
-                    return;
-                }
-                bulletY += 5; // Speed of the bullet
-                bullet.style.top = bulletY + 'px';
-                if (bulletY > gameContainer.offsetHeight) {
-                    clearInterval(bulletMoveInterval);
-                    if (gameContainer.contains(bullet)) {
-                        gameContainer.removeChild(bullet);
-                    }
-                }
-            }, 16);
-            
-            setTimeout(createBullet, Math.random() * 1000 + 500); // Create a new bullet
-        }
-
-        createBullet();
-
-        function checkCollision() {
-            if (!isAlive) return;
-            const playerRect = player.getBoundingClientRect();
-            const bullets = document.querySelectorAll('.bullet');
-
-            bullets.forEach(bullet => {
-                const bulletRect = bullet.getBoundingClientRect();
-                if (
-                    playerRect.top < bulletRect.bottom &&
-                    playerRect.bottom > bulletRect.top &&
-                    playerRect.left < bulletRect.right &&
-                    playerRect.right > bulletRect.left
-                ) {
-                    isAlive = false;
-                    gameOverScreen.style.display = 'flex';
-                }
-            });
-            requestAnimationFrame(checkCollision);
-        }
+    document.addEventListener('mousemove', (e) => {
+        if (!isAlive) return;
+        const containerRect = gameContainer.getBoundingClientRect();
+        const mouseX = e.clientX - containerRect.left;
         
-        checkCollision();
-    </script>
-</body>
-</html>
+        let newLeft = mouseX - player.offsetWidth / 2;
+        if (newLeft < 0) {
+            newLeft = 0;
+        } else if (newLeft + player.offsetWidth > containerRect.width) {
+            newLeft = containerRect.width - player.offsetWidth;
+        }
+        player.style.left = newLeft + 'px';
+    });
+
+    function createBullet() {
+        if (!isAlive) return;
+        const bullet = document.createElement('div');
+        bullet.classList.add('bullet');
+        gameContainer.appendChild(bullet);
+
+        const randomX = Math.random() * (gameContainer.offsetWidth - bullet.offsetWidth);
+        bullet.style.left = randomX + 'px';
+
+        let bulletY = -20;
+        const bulletMoveInterval = setInterval(() => {
+            if (!isAlive) {
+                clearInterval(bulletMoveInterval);
+                return;
+            }
+            bulletY += 5;
+            bullet.style.top = bulletY + 'px';
+            if (bulletY > gameContainer.offsetHeight) {
+                clearInterval(bulletMoveInterval);
+                if (gameContainer.contains(bullet)) {
+                    gameContainer.removeChild(bullet);
+                }
+            }
+        }, 16);
+        
+        setTimeout(createBullet, Math.random() * 1000 + 500);
+    }
+
+    createBullet();
+
+    function checkCollision() {
+        if (!isAlive) return;
+        const playerRect = player.getBoundingClientRect();
+        const bullets = document.querySelectorAll('.bullet');
+
+        bullets.forEach(bullet => {
+            const bulletRect = bullet.getBoundingClientRect();
+            if (
+                playerRect.top < bulletRect.bottom &&
+                playerRect.bottom > bulletRect.top &&
+                playerRect.left < bulletRect.right &&
+                playerRect.right > bulletRect.left
+            ) {
+                isAlive = false;
+                gameOverScreen.style.display = 'flex';
+            }
+        });
+        requestAnimationFrame(checkCollision);
+    }
+
+    checkCollision();
+</script>
