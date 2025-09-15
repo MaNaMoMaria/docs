@@ -18,6 +18,43 @@
         background: radial-gradient(circle, #0f0a28, #1a237e, #4a148c);
         touch-action: none;
     }
+    
+    .light-ray {
+        position: absolute;
+        background-color: white;
+        opacity: 0.1;
+        animation: ray-move 10s linear infinite;
+    }
+
+    .light-ray:nth-child(1) {
+        width: 200vw;
+        height: 5px;
+        top: 10vh;
+        animation-delay: 0s;
+    }
+
+    .light-ray:nth-child(2) {
+        width: 150vw;
+        height: 3px;
+        top: 40vh;
+        animation-delay: 3s;
+    }
+
+    .light-ray:nth-child(3) {
+        width: 180vw;
+        height: 4px;
+        top: 70vh;
+        animation-delay: 6s;
+    }
+
+    @keyframes ray-move {
+        from {
+            transform: translateX(-100vw);
+        }
+        to {
+            transform: translateX(100vw);
+        }
+    }
 
     #game-title {
         position: absolute;
@@ -43,15 +80,26 @@
         transform: translateY(-50%);
         border-radius: 5px;
         box-shadow: 0 0 15px #e0f7fa, 0 0 30px #e0f7fa;
+        transition: opacity 1s;
     }
 
     .bullet {
-        width: 20px;
-        height: 5px;
+        width: 40px;
+        height: 10px;
         background-color: #ff5252;
         position: absolute;
-        right: -20px;
-        box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
+        right: -40px;
+        box-shadow: 0 0 15px #ff5252, 0 0 30px #ff5252;
+        animation: pulse 1s infinite alternate;
+    }
+    
+    @keyframes pulse {
+        from {
+            box-shadow: 0 0 15px #ff5252, 0 0 30px #ff5252;
+        }
+        to {
+            box-shadow: 0 0 25px #ff5252, 0 0 50px #ff5252;
+        }
     }
 
     .game-over-screen {
@@ -95,22 +143,58 @@
         background-color: #0d47a1;
         transform: scale(1.05);
     }
+
+    #flash-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        opacity: 0;
+        z-index: 1000;
+        pointer-events: none;
+    }
 </style>
 
 <div class="game-container">
     <div id="game-title">Galactic Escape</div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
+    <div class="light-ray"></div>
     <div id="player"></div>
+    <div id="flash-effect"></div>
 </div>
 <div id="gameOverScreen" class="game-over-screen">
     <div class="game-over-text">Game Over!</div>
-    <button class="restart-button" onclick="location.reload()">شروع مجدد</button>
+    <button class="restart-button" onclick="location.reload()">Restart</button>
 </div>
 
 <script>
     const gameContainer = document.querySelector('.game-container');
     const player = document.getElementById('player');
     const gameOverScreen = document.getElementById('gameOverScreen');
+    const flashEffect = document.getElementById('flash-effect');
     let isAlive = true;
+
+    // Create an AudioContext for sound generation
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playCollisionSound() {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.value = 100;
+        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start(audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    }
 
     // Mouse movement for horizontal game
     document.addEventListener('mousemove', (e) => {
@@ -145,12 +229,13 @@
         bullet.style.top = randomY + 'px';
 
         let bulletX = gameContainer.offsetWidth;
+        const bulletSpeed = 10;
         const bulletMoveInterval = setInterval(() => {
             if (!isAlive) {
                 clearInterval(bulletMoveInterval);
                 return;
             }
-            bulletX -= 5;
+            bulletX -= bulletSpeed;
             bullet.style.right = (gameContainer.offsetWidth - bulletX) + 'px';
             if (bulletX < 0) {
                 clearInterval(bulletMoveInterval);
@@ -160,7 +245,7 @@
             }
         }, 16);
         
-        setTimeout(createBullet, Math.random() * 1000 + 500);
+        setTimeout(createBullet, Math.random() * 250 + 250);
     }
 
     createBullet();
@@ -179,7 +264,13 @@
                 playerRect.right > bulletRect.left
             ) {
                 isAlive = false;
+                player.style.opacity = 0; // Fade out the player
                 gameOverScreen.style.display = 'flex';
+                playCollisionSound(); // Play sound
+                flashEffect.style.opacity = 1; // Show flash
+                setTimeout(() => {
+                    flashEffect.style.opacity = 0;
+                }, 100);
             }
         });
         requestAnimationFrame(checkCollision);
