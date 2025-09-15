@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creative Runner</title>
+    <title>Dynamic Game</title>
     <style>
         body {
             display: flex;
@@ -30,11 +30,6 @@
             width: 100%;
             height: 50px;
             background-color: #2e8b57;
-            animation: groundMove 10s linear infinite;
-        }
-        @keyframes groundMove {
-            from { background-position-x: 0; }
-            to { background-position-x: -800px; }
         }
         #character {
             width: 30px;
@@ -46,12 +41,6 @@
             left: 50px;
             transition: bottom 0.3s ease-out;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            animation: run 0.6s steps(2) infinite;
-        }
-        @keyframes run {
-            0% { transform: scaleY(1); }
-            50% { transform: scaleY(0.9); }
-            100% { transform: scaleY(1); }
         }
         #obstacle {
             width: 25px;
@@ -61,12 +50,7 @@
             position: absolute;
             bottom: 50px;
             right: -25px;
-            animation: obstacleMove 2s linear infinite;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-        }
-        @keyframes obstacleMove {
-            0% { right: -25px; }
-            100% { right: 100%; }
         }
         .jump {
             animation: jump 0.6s ease-out;
@@ -132,6 +116,28 @@
         let isJumping = false;
         let isAlive = true;
 
+        // Function to create a new obstacle with a random delay
+        function createObstacle() {
+            const obstacle = document.createElement("div");
+            obstacle.setAttribute("id", "obstacle");
+            gameContainer.appendChild(obstacle);
+            obstacle.style.animationPlayState = 'running';
+            
+            // Set a random duration for the obstacle animation
+            const randomDuration = Math.random() * 1.5 + 1.5; // From 1.5s to 3s
+            obstacle.style.animationDuration = `${randomDuration}s`;
+
+            obstacle.addEventListener('animationend', () => {
+                if (isAlive) {
+                    gameContainer.removeChild(obstacle);
+                    setTimeout(createObstacle, Math.random() * 1000 + 500); // Wait 0.5s to 1.5s before creating a new one
+                }
+            });
+        }
+        
+        // Start the obstacle creation process
+        createObstacle();
+
         function jump() {
             if (isJumping || !isAlive) return;
             isJumping = true;
@@ -156,9 +162,12 @@
 
         const checkCollision = setInterval(() => {
             if (!isAlive) return;
-            
+
+            const currentObstacle = document.querySelector("#obstacle");
+            if (!currentObstacle) return;
+
             const characterRect = character.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
+            const obstacleRect = currentObstacle.getBoundingClientRect();
 
             if (
                 characterRect.right > obstacleRect.left &&
@@ -169,6 +178,11 @@
                 hitSound.currentTime = 0;
                 hitSound.play();
                 gameOverScreen.style.display = "flex";
+                
+                // Stop all animations on collision
+                character.style.animationPlayState = 'paused';
+                currentObstacle.style.animationPlayState = 'paused';
+                document.querySelector('.ground').style.animationPlayState = 'paused';
             }
         }, 10);
     </script>
