@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Runner Game</title>
+    <title>Galactic Escape</title>
     <style>
         body {
             display: flex;
@@ -11,95 +11,38 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #87CEEB; /* Sky Blue */
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            color: white;
+            background-color: #000;
         }
 
         .game-container {
-            width: 800px;
-            height: 300px;
-            border: 4px solid #fff;
+            width: 400px;
+            height: 600px;
+            border: 2px solid #fff;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(to top, #4CAF50 50px, transparent 50px);
+            background: linear-gradient(to bottom, #1a237e, #4a148c);
+            cursor: crosshair;
         }
 
-        .cloud {
-            position: absolute;
-            background-color: #f0f0f0;
-            top: 50px;
-            height: 20px;
-            width: 60px;
-            border-radius: 10px;
-            animation: cloudMove linear infinite;
-        }
-
-        .cloud.small {
+        #player {
             width: 40px;
-            height: 15px;
-            top: 80px;
-        }
-
-        @keyframes cloudMove {
-            from { right: -100px; }
-            to { right: 900px; }
-        }
-
-        #character {
-            width: 30px;
-            height: 50px;
+            height: 60px;
+            background-color: #e0f7fa;
             position: absolute;
-            bottom: 50px;
-            left: 150px;
-            z-index: 2;
-            transition: bottom 0.3s ease-out;
-        }
-        
-        #character .head, #character .body, #character .leg {
-            position: absolute;
-        }
-        #character .head {
-            width: 20px;
-            height: 20px;
-            background-color: #FFC300;
-            border-radius: 50%;
-            top: -10px;
-            left: 5px;
-        }
-        #character .body {
-            width: 30px;
-            height: 30px;
-            background-color: #2196F3;
-            top: 10px;
-        }
-        #character .leg {
-            width: 10px;
-            height: 20px;
-            background-color: #FF5733;
-            top: 40px;
-        }
-        #character .leg1 { left: 5px; }
-        #character .leg2 { left: 15px; }
-
-        .obstacle {
-            width: 25px;
-            height: 40px;
-            background-color: #F44336;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
             border-radius: 5px;
-            position: absolute;
-            bottom: 50px;
-            z-index: 1;
-        }
-        
-        .jump {
-            animation: jump 0.6s ease-out;
+            box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
         }
 
-        @keyframes jump {
-            0%, 100% { bottom: 50px; }
-            50% { bottom: 200px; }
+        .bullet {
+            width: 5px;
+            height: 20px;
+            background-color: #ff5252;
+            position: absolute;
+            top: -20px;
+            box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
         }
 
         .game-over-screen {
@@ -115,11 +58,8 @@
             flex-direction: column;
             text-align: center;
             z-index: 100;
-        }
-
-        .game-over-text {
-            font-size: 3em;
-            margin-bottom: 20px;
+            color: white;
+            font-size: 2em;
         }
 
         .restart-button {
@@ -131,6 +71,7 @@
             color: white;
             border-radius: 5px;
             transition: background-color 0.3s;
+            margin-top: 20px;
         }
 
         .restart-button:hover {
@@ -140,102 +81,77 @@
 </head>
 <body>
     <div class="game-container">
-        <div id="character">
-            <div class="head"></div>
-            <div class="body"></div>
-            <div class="leg leg1"></div>
-            <div class="leg leg2"></div>
-        </div>
-        <div class="cloud" style="top: 60px; left: 100px; animation-duration: 15s;"></div>
-        <div class="cloud small" style="top: 90px; left: 400px; animation-duration: 20s;"></div>
-        <div class="cloud" style="top: 70px; left: 700px; animation-duration: 18s;"></div>
+        <div id="player"></div>
     </div>
-
     <div id="gameOverScreen" class="game-over-screen">
         <div class="game-over-text">Game Over!</div>
-        <div class="game-over-text">Try Again?</div>
         <button class="restart-button" onclick="location.reload()">Restart</button>
     </div>
 
     <script>
-        const character = document.getElementById("character");
-        const gameContainer = document.querySelector(".game-container");
-        const gameOverScreen = document.getElementById("gameOverScreen");
-        let isJumping = false;
+        const gameContainer = document.querySelector('.game-container');
+        const player = document.getElementById('player');
+        const gameOverScreen = document.getElementById('gameOverScreen');
         let isAlive = true;
 
-        function playSound(frequency, duration) {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            oscillator.type = 'sine';
-            oscillator.frequency.value = frequency;
-
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
-
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + duration / 1000);
-        }
-
-        function createObstacle() {
+        document.addEventListener('mousemove', (e) => {
             if (!isAlive) return;
+            const containerRect = gameContainer.getBoundingClientRect();
+            const mouseX = e.clientX - containerRect.left;
+            player.style.left = mouseX - player.offsetWidth / 2 + 'px';
+        });
 
-            const obstacle = document.createElement("div");
-            obstacle.classList.add("obstacle");
-            gameContainer.appendChild(obstacle);
+        function createBullet() {
+            if (!isAlive) return;
+            const bullet = document.createElement('div');
+            bullet.classList.add('bullet');
+            gameContainer.appendChild(bullet);
 
-            const speed = 2;
-            let right = -25;
-            const moveInterval = setInterval(() => {
+            const randomX = Math.random() * (gameContainer.offsetWidth - bullet.offsetWidth);
+            bullet.style.left = randomX + 'px';
+
+            let bulletY = -20;
+            const bulletMoveInterval = setInterval(() => {
                 if (!isAlive) {
-                    clearInterval(moveInterval);
-                    if (gameContainer.contains(obstacle)) {
-                        gameContainer.removeChild(obstacle);
-                    }
+                    clearInterval(bulletMoveInterval);
                     return;
                 }
-
-                right += speed;
-                obstacle.style.right = right + "px";
-
-                if (right > gameContainer.offsetWidth) {
-                    clearInterval(moveInterval);
-                    if (gameContainer.contains(obstacle)) {
-                        gameContainer.removeChild(obstacle);
+                bulletY += 5; // Speed of the bullet
+                bullet.style.top = bulletY + 'px';
+                if (bulletY > gameContainer.offsetHeight) {
+                    clearInterval(bulletMoveInterval);
+                    if (gameContainer.contains(bullet)) {
+                        gameContainer.removeChild(bullet);
                     }
-                    setTimeout(createObstacle, Math.random() * 2000 + 1000);
                 }
-            }, 10);
+            }, 16);
+            
+            setTimeout(createBullet, Math.random() * 1000 + 500); // Create a new bullet
         }
 
-        createObstacle();
+        createBullet();
 
-        function jump() {
-            if (isJumping || !isAlive) return;
-            isJumping = true;
-            playSound(440, 200);
-            character.classList.add("jump");
-            setTimeout(() => {
-                character.classList.remove("jump");
-                isJumping = false;
-            }, 600);
-        }
-
-        document.addEventListener("keydown", (event) => {
-            if (event.code === "Space" || event.code === "ArrowUp") {
-                jump();
-            }
-        });
-
-        gameContainer.addEventListener("click", () => {
-            jump();
-        });
-
-        const checkCollision = setInterval(() => {
+        function checkCollision() {
             if (!isAlive) return;
+            const playerRect = player.getBoundingClientRect();
+            const bullets = document.querySelectorAll('.bullet');
+
+            bullets.forEach(bullet => {
+                const bulletRect = bullet.getBoundingClientRect();
+                if (
+                    playerRect.top < bulletRect.bottom &&
+                    playerRect.bottom > bulletRect.top &&
+                    playerRect.left < bulletRect.right &&
+                    playerRect.right > bulletRect.left
+                ) {
+                    isAlive = false;
+                    gameOverScreen.style.display = 'flex';
+                }
+            });
+            requestAnimationFrame(checkCollision);
+        }
+        
+        checkCollision();
+    </script>
+</body>
+</html>
