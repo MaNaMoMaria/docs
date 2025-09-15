@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Game</title>
+    <title>Pixel Game</title>
     <style>
         body {
             display: flex;
@@ -11,7 +11,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #3b5998;
+            background-color: #87CEEB; /* Sky blue */
             overflow: hidden;
             font-family: Arial, sans-serif;
             color: white;
@@ -22,7 +22,7 @@
             border: 4px solid #fff;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(to bottom, #87CEEB, #F0F8FF);
+            background-color: #87CEEB;
         }
         .ground {
             position: absolute;
@@ -30,19 +30,54 @@
             width: 100%;
             height: 50px;
             background-color: #2e8b57;
-            animation: groundMove 10s linear infinite;
-        }
-        @keyframes groundMove {
-            from { background-position-x: 0; }
-            to { background-position-x: -800px; }
+            box-shadow: 
+                0 0 0 2px #333,
+                0 0 0 4px #555,
+                0 0 0 6px #777,
+                0 0 0 8px #999,
+                0 0 0 10px #bbb;
         }
         #character {
-            width: 30px;
-            height: 50px;
+            width: 32px;
+            height: 48px;
             position: absolute;
             bottom: 50px;
-            left: 50px;
+            left: 150px;
+            z-index: 2;
             transition: bottom 0.3s ease-out;
+            background-color: #333;
+            box-shadow: 
+                4px 0px 0 0 #333, /* Head */
+                8px 0px 0 0 #333,
+                12px 0px 0 0 #333,
+                16px 0px 0 0 #333,
+                20px 0px 0 0 #333,
+                24px 0px 0 0 #333,
+                -4px 4px 0 0 #333,
+                28px 4px 0 0 #333,
+                -4px 8px 0 0 #333,
+                28px 8px 0 0 #333,
+                0px 12px 0 0 #333,
+                4px 12px 0 0 #333,
+                8px 12px 0 0 #333,
+                12px 12px 0 0 #333,
+                16px 12px 0 0 #333,
+                20px 12px 0 0 #333,
+                24px 12px 0 0 #333,
+                28px 12px 0 0 #333,
+                32px 12px 0 0 #333,
+                36px 12px 0 0 #333,
+                40px 12px 0 0 #333,
+                44px 12px 0 0 #333,
+                48px 12px 0 0 #333,
+                52px 12px 0 0 #333,
+                56px 12px 0 0 #333,
+                60px 12px 0 0 #333,
+                64px 12px 0 0 #333,
+                68px 12px 0 0 #333,
+                72px 12px 0 0 #333,
+                76px 12px 0 0 #333,
+                80px 12px 0 0 #333;
             animation: run 0.6s steps(2) infinite;
         }
         @keyframes run {
@@ -50,39 +85,14 @@
             50% { transform: scaleY(0.9); }
             100% { transform: scaleY(1); }
         }
-        .head {
-            width: 25px;
-            height: 25px;
-            background-color: #FF5733;
-            border-radius: 50%;
-            position: absolute;
-            top: -15px;
-            left: 2px;
-        }
-        .body {
+        .obstacle {
             width: 30px;
             height: 40px;
-            background-color: #FF5733;
-        }
-        .leg {
-            width: 10px;
-            height: 15px;
             background-color: #FFC300;
-            position: absolute;
-            bottom: -15px;
-        }
-        .leg1 { left: 5px; }
-        .leg2 { left: 15px; }
-
-        .obstacle {
-            width: 25px;
-            height: 40px;
-            background-color: #F44336;
             border-radius: 5px;
             position: absolute;
             bottom: 50px;
-            right: -25px;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            z-index: 1;
         }
         .jump {
             animation: jump 0.6s ease-out;
@@ -103,6 +113,7 @@
             align-items: center;
             flex-direction: column;
             text-align: center;
+            z-index: 100;
         }
         .game-over-text {
             font-size: 3em;
@@ -129,12 +140,7 @@
 
     <div class="game-container">
         <div class="ground"></div>
-        <div id="character">
-            <div class="head"></div>
-            <div class="body"></div>
-            <div class="leg leg1"></div>
-            <div class="leg leg2"></div>
-        </div>
+        <div id="character"></div>
     </div>
     <div id="gameOverScreen" class="game-over-screen">
         <div class="game-over-text">Game Over!</div>
@@ -151,34 +157,14 @@
         let isJumping = false;
         let isAlive = true;
 
-        function createObstacle() {
-            if (!isAlive) return;
-            
-            const obstacle = document.createElement("div");
-            obstacle.classList.add("obstacle");
-            gameContainer.appendChild(obstacle);
-            
-            const randomDuration = Math.random() * 1.5 + 1.5;
-            obstacle.style.animation = `obstacleMove ${randomDuration}s linear infinite`;
-
-            setTimeout(() => {
-                if (isAlive && gameContainer.contains(obstacle)) {
-                    gameContainer.removeChild(obstacle);
-                    createObstacle();
-                }
-            }, randomDuration * 1000);
-        }
-
-        createObstacle();
-
         function jump() {
             if (isJumping || !isAlive) return;
             isJumping = true;
             jumpSound.currentTime = 0;
             jumpSound.play();
-            character.classList.add("jump");
+            character.style.bottom = '200px';
             setTimeout(() => {
-                character.classList.remove("jump");
+                character.style.bottom = '50px';
                 isJumping = false;
             }, 600);
         }
@@ -193,10 +179,43 @@
             jump();
         });
 
-        const checkCollision = setInterval(() => {
+        // Obstacle management
+        const obstacleDuration = 2000;
+        let lastObstacleTime = 0;
+
+        function createObstacle() {
             if (!isAlive) return;
 
-            const obstacles = document.querySelectorAll(".obstacle");
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            gameContainer.appendChild(obstacle);
+
+            let obstacleRight = -40;
+            const obstacleMoveInterval = setInterval(() => {
+                if (!isAlive) {
+                    clearInterval(obstacleMoveInterval);
+                    return;
+                }
+                obstacleRight += 10;
+                obstacle.style.right = obstacleRight + 'px';
+                if (obstacleRight > 800) {
+                    clearInterval(obstacleMoveInterval);
+                    gameContainer.removeChild(obstacle);
+                }
+            }, 20);
+        }
+        
+        setInterval(() => {
+            if (isAlive) {
+                createObstacle();
+            }
+        }, Math.random() * 2000 + 1000);
+
+        // Collision detection
+        const checkCollision = setInterval(() => {
+            if (!isAlive) return;
+            
+            const obstacles = document.querySelectorAll('.obstacle');
             obstacles.forEach(obstacle => {
                 const characterRect = character.getBoundingClientRect();
                 const obstacleRect = obstacle.getBoundingClientRect();
@@ -210,13 +229,6 @@
                     hitSound.currentTime = 0;
                     hitSound.play();
                     gameOverScreen.style.display = "flex";
-
-                    // Stop all animations on collision
-                    document.querySelectorAll('.obstacle').forEach(obs => {
-                        obs.style.animationPlayState = 'paused';
-                    });
-                    document.querySelector('.ground').style.animationPlayState = 'paused';
-                    character.style.animationPlayState = 'paused';
                     clearInterval(checkCollision);
                 }
             });
