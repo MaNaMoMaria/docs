@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Click Game</title>
+    <title>Galactic Escape</title>
     <style>
         body {
             display: flex;
@@ -11,82 +11,147 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #333;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            background-color: #000;
         }
 
         .game-container {
-            width: 300px;
-            height: 300px;
-            border: 4px solid #fff;
-            display: flex;
+            width: 400px;
+            height: 600px;
+            border: 2px solid #fff;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #1a237e, #4a148c);
+            cursor: crosshair;
+        }
+
+        #player {
+            width: 40px;
+            height: 60px;
+            background-color: #e0f7fa;
+            position: absolute;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            border-radius: 5px;
+            box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
+        }
+
+        .bullet {
+            width: 5px;
+            height: 20px;
+            background-color: #ff5252;
+            position: absolute;
+            top: -20px;
+            box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
+        }
+
+        .game-over-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            cursor: pointer;
-            transition: background-color 0.5s;
-        }
-
-        #message {
+            text-align: center;
+            z-index: 100;
+            color: white;
             font-size: 2em;
-            margin-bottom: 20px;
         }
 
-        #timer {
-            font-size: 3em;
+        .restart-button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: 2px solid white;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .restart-button:hover {
+            background-color: #0d47a1;
         }
     </style>
 </head>
 <body>
-    <div class="game-container" id="gameArea">
-        <p id="message">منتظر چراغ سبز باشید</p>
-        <p id="timer">0.000s</p>
+    <div class="game-container">
+        <div id="player"></div>
+    </div>
+    <div id="gameOverScreen" class="game-over-screen">
+        <div class="game-over-text">Game Over!</div>
+        <button class="restart-button" onclick="location.reload()">Restart</button>
     </div>
 
     <script>
-        const gameArea = document.getElementById("gameArea");
-        const message = document.getElementById("message");
-        const timerDisplay = document.getElementById("timer");
+        const gameContainer = document.querySelector('.game-container');
+        const player = document.getElementById('player');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        let isAlive = true;
 
-        let startTime;
-        let timeoutId;
-        let isWaiting = true;
+        document.addEventListener('mousemove', (e) => {
+            if (!isAlive) return;
+            const containerRect = gameContainer.getBoundingClientRect();
+            const mouseX = e.clientX - containerRect.left;
+            player.style.left = mouseX - player.offsetWidth / 2 + 'px';
+        });
 
-        function startGame() {
-            isWaiting = true;
-            message.textContent = "آماده باش...";
-            timerDisplay.textContent = "0.000s";
-            gameArea.style.backgroundColor = "#ff0000"; // Red
+        function createBullet() {
+            if (!isAlive) return;
+            const bullet = document.createElement('div');
+            bullet.classList.add('bullet');
+            gameContainer.appendChild(bullet);
+
+            const randomX = Math.random() * (gameContainer.offsetWidth - bullet.offsetWidth);
+            bullet.style.left = randomX + 'px';
+
+            let bulletY = -20;
+            const bulletMoveInterval = setInterval(() => {
+                if (!isAlive) {
+                    clearInterval(bulletMoveInterval);
+                    return;
+                }
+                bulletY += 5; // Speed of the bullet
+                bullet.style.top = bulletY + 'px';
+                if (bulletY > gameContainer.offsetHeight) {
+                    clearInterval(bulletMoveInterval);
+                    if (gameContainer.contains(bullet)) {
+                        gameContainer.removeChild(bullet);
+                    }
+                }
+            }, 16);
             
-            const randomTime = Math.random() * 3000 + 2000; // 2 to 5 seconds
-            timeoutId = setTimeout(() => {
-                isWaiting = false;
-                startTime = Date.now();
-                message.textContent = "کلیک کنید!";
-                gameArea.style.backgroundColor = "#00ff00"; // Green
-            }, randomTime);
+            setTimeout(createBullet, Math.random() * 1000 + 500); // Create a new bullet
         }
 
-        function endGame() {
-            clearTimeout(timeoutId);
-            if (isWaiting) {
-                message.textContent = "زود کلیک کردید! باختید.";
-                gameArea.style.backgroundColor = "#800080"; // Purple
-            } else {
-                const reactionTime = (Date.now() - startTime) / 1000;
-                message.textContent = "شما بردید!";
-                timerDisplay.textContent = `${reactionTime.toFixed(3)}s`;
-                gameArea.style.backgroundColor = "#0000ff"; // Blue
-            }
-            setTimeout(startGame, 3000); // Restart after 3 seconds
+        createBullet();
+
+        function checkCollision() {
+            if (!isAlive) return;
+            const playerRect = player.getBoundingClientRect();
+            const bullets = document.querySelectorAll('.bullet');
+
+            bullets.forEach(bullet => {
+                const bulletRect = bullet.getBoundingClientRect();
+                if (
+                    playerRect.top < bulletRect.bottom &&
+                    playerRect.bottom > bulletRect.top &&
+                    playerRect.left < bulletRect.right &&
+                    playerRect.right > bulletRect.left
+                ) {
+                    isAlive = false;
+                    gameOverScreen.style.display = 'flex';
+                }
+            });
+            requestAnimationFrame(checkCollision);
         }
-
-        gameArea.addEventListener("click", endGame);
-
-        // Start the first round
-        startGame();
+        
+        checkCollision();
     </script>
 </body>
 </html>
