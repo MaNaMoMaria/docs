@@ -3,68 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
     <style>
-        .game-container {
-            width: 100%;
-            max-width: 600px;
-            height: 200px;
-            border: 2px solid #333;
-            position: relative;
-            background-color: #fff;
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
             overflow: hidden;
-            margin: 0 auto;
+            position: relative;
+        }
+        .game-container {
+            width: 80%;
+            max-width: 800px;
+            height: 300px;
+            border: 5px solid #333;
+            position: relative;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x_M3yC1sY8Yj_E2iO9h2M-v_b6s-k6w18Q&s') repeat-x bottom;
+            background-size: contain;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            cursor: pointer;
         }
         #character {
-            width: 30px;
-            height: 30px;
-            background-color: blue;
+            width: 50px;
+            height: 50px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReVv1V4r8Zz7Yg7q2E9Bw1g-v-l-b6r1g-v-l-b6r1g&s') no-repeat center;
+            background-size: contain;
             position: absolute;
-            bottom: 0;
-            left: 50px;
-            transition: bottom 0.3s;
+            bottom: 50px;
+            left: 100px;
+            transition: bottom 0.3s ease-out;
         }
         #obstacle {
-            width: 20px;
-            height: 20px;
-            background-color: red;
+            width: 40px;
+            height: 40px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8c5z7-E7n5t0_tX8l-H0C3j-w_k6s-s8x8g&s') no-repeat center;
+            background-size: contain;
             position: absolute;
-            bottom: 0;
-            right: -20px;
+            bottom: 50px;
+            right: -40px;
             animation: moveObstacle 2s linear infinite;
         }
         @keyframes moveObstacle {
-            0% {
-                right: -20px;
-            }
-            100% {
-                right: 100%;
-            }
+            0% { right: -40px; }
+            100% { right: 100%; }
         }
         .jump {
-            animation: jump 0.3s ease-out;
+            animation: jump 0.6s ease-out;
         }
         @keyframes jump {
-            0% {
-                bottom: 0px;
-            }
-            50% {
-                bottom: 100px;
-            }
-            100% {
-                bottom: 0px;
-            }
+            0%, 100% { bottom: 50px; }
+            50% { bottom: 200px; }
+        }
+        .blood-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0);
+            transition: background-color 0.5s ease-out;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
+
+    <audio id="hitSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
     <div class="game-container">
         <div id="character"></div>
         <div id="obstacle"></div>
+        <div id="bloodEffect" class="blood-effect"></div>
     </div>
 
     <script>
         const character = document.getElementById("character");
+        const obstacle = document.getElementById("obstacle");
         const gameContainer = document.querySelector(".game-container");
+        const hitSound = document.getElementById("hitSound");
+        const bloodEffect = document.getElementById("bloodEffect");
         let isJumping = false;
         let isAlive = true;
 
@@ -72,40 +93,172 @@
             if (isJumping) return;
             isJumping = true;
             character.classList.add("jump");
-
-            setTimeout(function() {
+            setTimeout(() => {
                 character.classList.remove("jump");
                 isJumping = false;
-            }, 300);
+            }, 600);
         }
 
-        document.addEventListener("keydown", function(event) {
+        document.addEventListener("keydown", (event) => {
             if (event.code === "Space" || event.code === "ArrowUp") {
                 jump();
             }
         });
 
-        gameContainer.addEventListener("click", function() {
+        gameContainer.addEventListener("click", () => {
             jump();
         });
 
-        const checkHit = setInterval(function() {
+        const checkHit = setInterval(() => {
             if (!isAlive) return;
 
-            let characterBottom = parseInt(window.getComputedStyle(character).getPropertyValue("bottom"));
-            let obstacleRight = parseInt(window.getComputedStyle(obstacle).getPropertyValue("right"));
+            const characterRect = character.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
 
-            // Get current dimensions and position of the obstacle
-            let obstacleWidth = parseInt(window.getComputedStyle(obstacle).getPropertyValue("width"));
-            let obstacleHeight = parseInt(window.getComputedStyle(obstacle).getPropertyValue("height"));
-            let gameContainerWidth = parseInt(window.getComputedStyle(gameContainer).getPropertyValue("width"));
-
-            let characterRight = gameContainerWidth - 50 - character.offsetWidth;
-            let obstacleLeft = gameContainerWidth - obstacleRight - obstacleWidth;
-            
-            // Simplified collision detection
-            if (obstacleRight > 480 && obstacleRight < 530 && characterBottom <= 30) {
+            if (
+                characterRect.right > obstacleRect.left &&
+                characterRect.left < obstacleRect.right &&
+                characterRect.bottom > obstacleRect.top
+            ) {
                 isAlive = false;
+                hitSound.play();
+                bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+                setTimeout(() => {
+                    bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0)";
+                }, 500);
+                alert("Game Over! Refresh to play again.");
+            }
+        }, 10);
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .game-container {
+            width: 80%;
+            max-width: 800px;
+            height: 300px;
+            border: 5px solid #333;
+            position: relative;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x_M3yC1sY8Yj_E2iO9h2M-v_b6s-k6w18Q&s') repeat-x bottom;
+            background-size: contain;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+        #character {
+            width: 50px;
+            height: 50px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReVv1V4r8Zz7Yg7q2E9Bw1g-v-l-b6r1g-v-l-b6r1g&s') no-repeat center;
+            background-size: contain;
+            position: absolute;
+            bottom: 50px;
+            left: 100px;
+            transition: bottom 0.3s ease-out;
+        }
+        #obstacle {
+            width: 40px;
+            height: 40px;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8c5z7-E7n5t0_tX8l-H0C3j-w_k6s-s8x8g&s') no-repeat center;
+            background-size: contain;
+            position: absolute;
+            bottom: 50px;
+            right: -40px;
+            animation: moveObstacle 2s linear infinite;
+        }
+        @keyframes moveObstacle {
+            0% { right: -40px; }
+            100% { right: 100%; }
+        }
+        .jump {
+            animation: jump 0.6s ease-out;
+        }
+        @keyframes jump {
+            0%, 100% { bottom: 50px; }
+            50% { bottom: 200px; }
+        }
+        .blood-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0);
+            transition: background-color 0.5s ease-out;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="hitSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+    <div class="game-container">
+        <div id="character"></div>
+        <div id="obstacle"></div>
+        <div id="bloodEffect" class="blood-effect"></div>
+    </div>
+
+    <script>
+        const character = document.getElementById("character");
+        const obstacle = document.getElementById("obstacle");
+        const gameContainer = document.querySelector(".game-container");
+        const hitSound = document.getElementById("hitSound");
+        const bloodEffect = document.getElementById("bloodEffect");
+        let isJumping = false;
+        let isAlive = true;
+
+        function jump() {
+            if (isJumping) return;
+            isJumping = true;
+            character.classList.add("jump");
+            setTimeout(() => {
+                character.classList.remove("jump");
+                isJumping = false;
+            }, 600);
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.code === "Space" || event.code === "ArrowUp") {
+                jump();
+            }
+        });
+
+        gameContainer.addEventListener("click", () => {
+            jump();
+        });
+
+        const checkHit = setInterval(() => {
+            if (!isAlive) return;
+
+            const characterRect = character.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+
+            if (
+                characterRect.right > obstacleRect.left &&
+                characterRect.left < obstacleRect.right &&
+                characterRect.bottom > obstacleRect.top
+            ) {
+                isAlive = false;
+                hitSound.play();
+                bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+                setTimeout(() => {
+                    bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0)";
+                }, 500);
                 alert("Game Over! Refresh to play again.");
             }
         }, 10);
