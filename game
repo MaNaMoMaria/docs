@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .game-container {
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            border: 2px solid #333;
+            position: relative;
+            background-color: #fff;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        #character {
+            width: 30px;
+            height: 30px;
+            background-color: blue;
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            transition: bottom 0.3s;
+        }
+        #obstacle {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            position: absolute;
+            bottom: 0;
+            right: -20px;
+            animation: moveObstacle 2s linear infinite;
+        }
+        @keyframes moveObstacle {
+            0% {
+                right: -20px;
+            }
+            100% {
+                right: 100%;
+            }
+        }
+        .jump {
+            animation: jump 0.3s ease-out;
+        }
+        @keyframes jump {
+            0% {
+                bottom: 0px;
+            }
+            50% {
+                bottom: 100px;
+            }
+            100% {
+                bottom: 0px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div id="character"></div>
+        <div id="obstacle"></div>
+    </div>
+
+    <script>
+        const character = document.getElementById("character");
+        const gameContainer = document.querySelector(".game-container");
+        let isJumping = false;
+        let isAlive = true;
+
+        function jump() {
+            if (isJumping) return;
+            isJumping = true;
+            character.classList.add("jump");
+
+            setTimeout(function() {
+                character.classList.remove("jump");
+                isJumping = false;
+            }, 300);
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "Space" || event.code === "ArrowUp") {
+                jump();
+            }
+        });
+
+        gameContainer.addEventListener("click", function() {
+            jump();
+        });
+
+        const checkHit = setInterval(function() {
+            if (!isAlive) return;
+
+            let characterBottom = parseInt(window.getComputedStyle(character).getPropertyValue("bottom"));
+            let obstacleRight = parseInt(window.getComputedStyle(obstacle).getPropertyValue("right"));
+
+            // Get current dimensions and position of the obstacle
+            let obstacleWidth = parseInt(window.getComputedStyle(obstacle).getPropertyValue("width"));
+            let obstacleHeight = parseInt(window.getComputedStyle(obstacle).getPropertyValue("height"));
+            let gameContainerWidth = parseInt(window.getComputedStyle(gameContainer).getPropertyValue("width"));
+
+            let characterRight = gameContainerWidth - 50 - character.offsetWidth;
+            let obstacleLeft = gameContainerWidth - obstacleRight - obstacleWidth;
+            
+            // Simplified collision detection
+            if (obstacleRight > 480 && obstacleRight < 530 && characterBottom <= 30) {
+                isAlive = false;
+                alert("Game Over! Refresh to play again.");
+            }
+        }, 10);
+    </script>
+</body>
+</html>
