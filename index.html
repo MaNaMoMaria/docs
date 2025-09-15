@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
+    <title>Pixel Runner</title>
     <style>
         body {
             background-color: #f0f0f0;
@@ -13,7 +13,6 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
-            position: relative;
         }
         .game-container {
             width: 80%;
@@ -21,82 +20,92 @@
             height: 300px;
             border: 5px solid #333;
             position: relative;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x_M3yC1sY8Yj_E2iO9h2M-v_b6s-k6w18Q&s') repeat-x bottom;
-            background-size: contain;
+            background: url('https://i.imgur.com/2X8g8wD.gif');
+            background-size: auto 100%;
+            animation: backgroundMove 5s linear infinite;
             overflow: hidden;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             cursor: pointer;
         }
+        @keyframes backgroundMove {
+            from { background-position-x: 0; }
+            to { background-position-x: -800px; }
+        }
         #character {
-            width: 50px;
-            height: 50px;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReVv1V4r8Zz7Yg7q2E9Bw1g-v-l-b6r1g-v-l-b6r1g&s') no-repeat center;
+            width: 70px;
+            height: 70px;
+            background: url('https://i.imgur.com/wVjW6Lp.gif') no-repeat center;
             background-size: contain;
             position: absolute;
-            bottom: 50px;
-            left: 100px;
-            transition: bottom 0.3s ease-out;
+            bottom: 0;
+            left: 50px;
+            transition: bottom 0.3s;
         }
         #obstacle {
-            width: 40px;
-            height: 40px;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8c5z7-E7n5t0_tX8l-H0C3j-w_k6s-s8x8g&s') no-repeat center;
+            width: 60px;
+            height: 60px;
+            background: url('https://i.imgur.com/KxP1z23.gif') no-repeat center;
             background-size: contain;
             position: absolute;
-            bottom: 50px;
-            right: -40px;
-            animation: moveObstacle 2s linear infinite;
+            bottom: 0;
+            right: -60px;
+            animation: moveObstacle 1.5s linear infinite;
         }
         @keyframes moveObstacle {
-            0% { right: -40px; }
+            0% { right: -60px; }
             100% { right: 100%; }
         }
         .jump {
-            animation: jump 0.6s ease-out;
+            animation: jump 0.5s ease-out;
         }
         @keyframes jump {
-            0%, 100% { bottom: 50px; }
-            50% { bottom: 200px; }
+            0%, 100% { bottom: 0; }
+            50% { bottom: 120px; }
         }
-        .blood-effect {
+        .hit-effect {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background-color: rgba(255, 0, 0, 0);
-            transition: background-color 0.5s ease-out;
+            transition: background-color 0.2s ease-in-out;
             pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <audio id="hitSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+    <audio id="jumpSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-video-game-jump-223.mp3" preload="auto"></audio>
+    <audio id="hitSound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-bling-2000.mp3" preload="auto"></audio>
+
     <div class="game-container">
         <div id="character"></div>
         <div id="obstacle"></div>
-        <div id="bloodEffect" class="blood-effect"></div>
+        <div id="hitEffect" class="hit-effect"></div>
     </div>
 
     <script>
         const character = document.getElementById("character");
         const obstacle = document.getElementById("obstacle");
         const gameContainer = document.querySelector(".game-container");
+        const jumpSound = document.getElementById("jumpSound");
         const hitSound = document.getElementById("hitSound");
-        const bloodEffect = document.getElementById("bloodEffect");
+        const hitEffect = document.getElementById("hitEffect");
         let isJumping = false;
         let isAlive = true;
 
         function jump() {
             if (isJumping) return;
             isJumping = true;
+            jumpSound.currentTime = 0; // Reset sound for quick jumps
+            jumpSound.play();
             character.classList.add("jump");
             setTimeout(() => {
                 character.classList.remove("jump");
                 isJumping = false;
-            }, 600);
+            }, 500);
         }
 
         document.addEventListener("keydown", (event) => {
@@ -121,145 +130,19 @@
                 characterRect.bottom > obstacleRect.top
             ) {
                 isAlive = false;
+                hitSound.currentTime = 0;
                 hitSound.play();
-                bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
+                
+                hitEffect.style.backgroundColor = "rgba(255, 0, 0, 0.4)";
                 setTimeout(() => {
-                    bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0)";
-                }, 500);
-                alert("Game Over! Refresh to play again.");
-            }
-        }, 10);
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game</title>
-    <style>
-        body {
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-            position: relative;
-        }
-        .game-container {
-            width: 80%;
-            max-width: 800px;
-            height: 300px;
-            border: 5px solid #333;
-            position: relative;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_x_M3yC1sY8Yj_E2iO9h2M-v_b6s-k6w18Q&s') repeat-x bottom;
-            background-size: contain;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            cursor: pointer;
-        }
-        #character {
-            width: 50px;
-            height: 50px;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReVv1V4r8Zz7Yg7q2E9Bw1g-v-l-b6r1g-v-l-b6r1g&s') no-repeat center;
-            background-size: contain;
-            position: absolute;
-            bottom: 50px;
-            left: 100px;
-            transition: bottom 0.3s ease-out;
-        }
-        #obstacle {
-            width: 40px;
-            height: 40px;
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8c5z7-E7n5t0_tX8l-H0C3j-w_k6s-s8x8g&s') no-repeat center;
-            background-size: contain;
-            position: absolute;
-            bottom: 50px;
-            right: -40px;
-            animation: moveObstacle 2s linear infinite;
-        }
-        @keyframes moveObstacle {
-            0% { right: -40px; }
-            100% { right: 100%; }
-        }
-        .jump {
-            animation: jump 0.6s ease-out;
-        }
-        @keyframes jump {
-            0%, 100% { bottom: 50px; }
-            50% { bottom: 200px; }
-        }
-        .blood-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 0, 0, 0);
-            transition: background-color 0.5s ease-out;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body>
+                    hitEffect.style.backgroundColor = "rgba(255, 0, 0, 0)";
+                }, 200);
 
-    <audio id="hitSound" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
-    <div class="game-container">
-        <div id="character"></div>
-        <div id="obstacle"></div>
-        <div id="bloodEffect" class="blood-effect"></div>
-    </div>
-
-    <script>
-        const character = document.getElementById("character");
-        const obstacle = document.getElementById("obstacle");
-        const gameContainer = document.querySelector(".game-container");
-        const hitSound = document.getElementById("hitSound");
-        const bloodEffect = document.getElementById("bloodEffect");
-        let isJumping = false;
-        let isAlive = true;
-
-        function jump() {
-            if (isJumping) return;
-            isJumping = true;
-            character.classList.add("jump");
-            setTimeout(() => {
-                character.classList.remove("jump");
-                isJumping = false;
-            }, 600);
-        }
-
-        document.addEventListener("keydown", (event) => {
-            if (event.code === "Space" || event.code === "ArrowUp") {
-                jump();
-            }
-        });
-
-        gameContainer.addEventListener("click", () => {
-            jump();
-        });
-
-        const checkHit = setInterval(() => {
-            if (!isAlive) return;
-
-            const characterRect = character.getBoundingClientRect();
-            const obstacleRect = obstacle.getBoundingClientRect();
-
-            if (
-                characterRect.right > obstacleRect.left &&
-                characterRect.left < obstacleRect.right &&
-                characterRect.bottom > obstacleRect.top
-            ) {
-                isAlive = false;
-                hitSound.play();
-                bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0.5)";
                 setTimeout(() => {
-                    bloodEffect.style.backgroundColor = "rgba(255, 0, 0, 0)";
+                    alert("Game Over! Refresh to play again.");
+                    // You might want to reload the page or add a restart button here
+                    // location.reload();
                 }, 500);
-                alert("Game Over! Refresh to play again.");
             }
         }, 10);
     </script>
