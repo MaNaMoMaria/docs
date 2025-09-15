@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Runner</title>
+    <title>Simple Game</title>
     <style>
         body {
             display: flex;
@@ -22,44 +22,46 @@
             border: 4px solid #fff;
             position: relative;
             overflow: hidden;
-            background: url('https://i.ibb.co/30fL337/bg-final.png');
-            background-size: auto 100%;
+            background: linear-gradient(to right, #4CAF50, #8BC34A, #4CAF50, #8BC34A);
+            background-size: 200% 100%;
             animation: backgroundMove 10s linear infinite;
         }
         @keyframes backgroundMove {
             from { background-position-x: 0; }
-            to { background-position-x: -800px; }
+            to { background-position-x: 100%; }
         }
         #character {
-            width: 50px;
+            width: 30px;
             height: 50px;
-            background: url('https://i.ibb.co/L9H8b4f/char-final.png');
-            background-size: contain;
+            background-color: #2196F3;
+            border-radius: 5px;
             position: absolute;
             bottom: 0;
             left: 50px;
             transition: bottom 0.3s ease-out;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
         #obstacle {
-            width: 40px;
+            width: 25px;
             height: 40px;
-            background: url('https://i.ibb.co/7g2j6XF/obs-final.png');
-            background-size: contain;
+            background-color: #F44336;
+            border-radius: 5px;
             position: absolute;
             bottom: 0;
-            right: -40px;
+            right: -25px;
             animation: obstacleMove 2s linear infinite;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
         @keyframes obstacleMove {
-            0% { right: -40px; }
+            0% { right: -25px; }
             100% { right: 100%; }
         }
         .jump {
-            animation: jump 0.5s ease-out;
+            animation: jump 0.6s ease-out;
         }
         @keyframes jump {
             0%, 100% { bottom: 0; }
-            50% { bottom: 120px; }
+            50% { bottom: 180px; }
         }
     </style>
 </head>
@@ -89,7 +91,7 @@
             setTimeout(() => {
                 character.classList.remove("jump");
                 isJumping = false;
-            }, 500);
+            }, 600);
         }
 
         document.addEventListener("keydown", (event) => {
