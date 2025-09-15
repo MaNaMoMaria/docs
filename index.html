@@ -20,20 +20,45 @@
             border: 2px solid #fff;
             position: relative;
             overflow: hidden;
-            background: linear-gradient(to bottom, #1a237e, #4a148c);
+            background: url('https://raw.githubusercontent.com/mdn/css-examples/main/css-background/stars.jpg') repeat-y;
+            background-size: cover;
+            animation: skyMove 20s linear infinite;
             cursor: crosshair;
+        }
+
+        @keyframes skyMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 600px; }
         }
 
         #player {
             width: 40px;
             height: 60px;
-            background-color: #e0f7fa;
             position: absolute;
-            left: 50%;
             bottom: 20px;
+            left: 50%;
             transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        #player .body {
+            width: 100%;
+            height: 100%;
+            background-color: #e0f7fa;
             border-radius: 5px;
             box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
+        }
+
+        #player .wing {
+            width: 80px;
+            height: 15px;
+            background-color: #b3e5fc;
+            position: absolute;
+            left: -20px;
+            top: 25px;
+            z-index: -1;
+            border-radius: 5px;
+            box-shadow: 0 0 5px #b3e5fc, 0 0 10px #b3e5fc;
         }
 
         .bullet {
@@ -81,7 +106,10 @@
 </head>
 <body>
     <div class="game-container">
-        <div id="player"></div>
+        <div id="player">
+            <div class="body"></div>
+            <div class="wing"></div>
+        </div>
     </div>
     <div id="gameOverScreen" class="game-over-screen">
         <div class="game-over-text">Game Over!</div>
@@ -94,11 +122,39 @@
         const gameOverScreen = document.getElementById('gameOverScreen');
         let isAlive = true;
 
+        // Custom function to create sound without external files
+        function playHitSound() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.value = 100;
+
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.5);
+        }
+
         document.addEventListener('mousemove', (e) => {
             if (!isAlive) return;
             const containerRect = gameContainer.getBoundingClientRect();
-            const mouseX = e.clientX - containerRect.left;
-            player.style.left = mouseX - player.offsetWidth / 2 + 'px';
+            let mouseX = e.clientX - containerRect.left;
+            
+            // Limit player movement within the game container
+            let newLeft = mouseX - player.offsetWidth / 2;
+            if (newLeft < 0) {
+                newLeft = 0;
+            } else if (newLeft + player.offsetWidth > containerRect.width) {
+                newLeft = containerRect.width - player.offsetWidth;
+            }
+            player.style.left = newLeft + 'px';
         });
 
         function createBullet() {
@@ -116,7 +172,7 @@
                     clearInterval(bulletMoveInterval);
                     return;
                 }
-                bulletY += 5; // Speed of the bullet
+                bulletY += 5;
                 bullet.style.top = bulletY + 'px';
                 if (bulletY > gameContainer.offsetHeight) {
                     clearInterval(bulletMoveInterval);
@@ -126,7 +182,7 @@
                 }
             }, 16);
             
-            setTimeout(createBullet, Math.random() * 1000 + 500); // Create a new bullet
+            setTimeout(createBullet, Math.random() * 1000 + 500);
         }
 
         createBullet();
@@ -134,24 +190,4 @@
         function checkCollision() {
             if (!isAlive) return;
             const playerRect = player.getBoundingClientRect();
-            const bullets = document.querySelectorAll('.bullet');
-
-            bullets.forEach(bullet => {
-                const bulletRect = bullet.getBoundingClientRect();
-                if (
-                    playerRect.top < bulletRect.bottom &&
-                    playerRect.bottom > bulletRect.top &&
-                    playerRect.left < bulletRect.right &&
-                    playerRect.right > bulletRect.left
-                ) {
-                    isAlive = false;
-                    gameOverScreen.style.display = 'flex';
-                }
-            });
-            requestAnimationFrame(checkCollision);
-        }
-        
-        checkCollision();
-    </script>
-</body>
-</html>
+            const bullets
