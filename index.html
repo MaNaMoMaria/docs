@@ -15,28 +15,42 @@
         border: none;
         position: relative;
         overflow: hidden;
-        background: linear-gradient(to bottom, #1a237e, #4a148c);
-        touch-action: none; /* Prevents default mobile actions like scrolling */
+        background: radial-gradient(circle, #0f0a28, #1a237e, #4a148c);
+        touch-action: none;
+    }
+
+    #game-title {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 2.5em;
+        font-family: sans-serif;
+        font-weight: bold;
+        text-shadow: 0 0 10px #e0f7fa;
+        z-index: 10;
+        white-space: nowrap;
     }
 
     #player {
-        width: 40px;
-        height: 60px;
+        width: 60px;
+        height: 40px;
         background-color: #e0f7fa;
         position: absolute;
-        left: 50%;
-        bottom: 20px;
-        transform: translateX(-50%);
+        top: 50%;
+        left: 20px;
+        transform: translateY(-50%);
         border-radius: 5px;
-        box-shadow: 0 0 10px #e0f7fa, 0 0 20px #e0f7fa;
+        box-shadow: 0 0 15px #e0f7fa, 0 0 30px #e0f7fa;
     }
 
     .bullet {
-        width: 5px;
-        height: 20px;
+        width: 20px;
+        height: 5px;
         background-color: #ff5252;
         position: absolute;
-        top: -20px;
+        right: -20px;
         box-shadow: 0 0 5px #ff5252, 0 0 10px #ff5252;
     }
 
@@ -57,29 +71,39 @@
         font-size: 2em;
     }
 
+    .game-over-text {
+        font-size: 2em;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 10px #ff5252;
+    }
+
     .restart-button {
-        padding: 10px 20px;
-        font-size: 1.2em;
+        padding: 15px 30px;
+        font-size: 1.5em;
         cursor: pointer;
         border: 2px solid white;
         background-color: #2196F3;
         color: white;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-        margin-top: 20px;
+        border-radius: 10px;
+        transition: background-color 0.3s, transform 0.2s;
+        margin-top: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
 
     .restart-button:hover {
         background-color: #0d47a1;
+        transform: scale(1.05);
     }
 </style>
 
 <div class="game-container">
+    <div id="game-title">Galactic Escape</div>
     <div id="player"></div>
 </div>
 <div id="gameOverScreen" class="game-over-screen">
     <div class="game-over-text">Game Over!</div>
-    <button class="restart-button" onclick="location.reload()">Restart</button>
+    <button class="restart-button" onclick="location.reload()">شروع مجدد</button>
 </div>
 
 <script>
@@ -88,26 +112,26 @@
     const gameOverScreen = document.getElementById('gameOverScreen');
     let isAlive = true;
 
-    // Mouse movement
+    // Mouse movement for horizontal game
     document.addEventListener('mousemove', (e) => {
         if (!isAlive) return;
-        updatePlayerPosition(e.clientX);
+        updatePlayerPosition(e.clientY);
     });
 
-    // Touch movement
+    // Touch movement for horizontal game
     document.addEventListener('touchmove', (e) => {
         if (!isAlive) return;
-        e.preventDefault(); // Prevents page scrolling
-        const touchX = e.touches[0].clientX;
-        updatePlayerPosition(touchX);
+        e.preventDefault();
+        const touchY = e.touches[0].clientY;
+        updatePlayerPosition(touchY);
     });
 
-    function updatePlayerPosition(x) {
+    function updatePlayerPosition(y) {
         const containerRect = gameContainer.getBoundingClientRect();
-        const newLeft = x - containerRect.left - player.offsetWidth / 2;
+        const newTop = y - containerRect.top - player.offsetHeight / 2;
         
-        if (newLeft >= 0 && newLeft + player.offsetWidth <= containerRect.width) {
-            player.style.left = newLeft + 'px';
+        if (newTop >= 0 && newTop + player.offsetHeight <= containerRect.height) {
+            player.style.top = newTop + 'px';
         }
     }
 
@@ -117,18 +141,18 @@
         bullet.classList.add('bullet');
         gameContainer.appendChild(bullet);
 
-        const randomX = Math.random() * (gameContainer.offsetWidth - bullet.offsetWidth);
-        bullet.style.left = randomX + 'px';
+        const randomY = Math.random() * (gameContainer.offsetHeight - bullet.offsetHeight);
+        bullet.style.top = randomY + 'px';
 
-        let bulletY = -20;
+        let bulletX = gameContainer.offsetWidth;
         const bulletMoveInterval = setInterval(() => {
             if (!isAlive) {
                 clearInterval(bulletMoveInterval);
                 return;
             }
-            bulletY += 5;
-            bullet.style.top = bulletY + 'px';
-            if (bulletY > gameContainer.offsetHeight) {
+            bulletX -= 5;
+            bullet.style.right = (gameContainer.offsetWidth - bulletX) + 'px';
+            if (bulletX < 0) {
                 clearInterval(bulletMoveInterval);
                 if (gameContainer.contains(bullet)) {
                     gameContainer.removeChild(bullet);
