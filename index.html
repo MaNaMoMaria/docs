@@ -361,7 +361,7 @@
         <div id="flash-effect"></div>
         
         <audio id="background-music" loop>
-            <source src="background-music.mp3" type="audio/mp3">
+            <source src="arcade-game-music.mp3" type="audio/mp3">
             Your browser does not support the audio element.
         </audio>
 
@@ -388,6 +388,8 @@
         let isAlive = true;
         let score = 0;
         let health = 3; 
+        // 💥 NEW: Set maximum health to 5
+        const MAX_HEALTH = 5; 
 
         
         const bulletCreationInterval = 750; 
@@ -406,7 +408,6 @@
         
         
         function playCollisionSound() {
-            // ... (Your collision sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             oscillator.type = 'sawtooth';
@@ -421,7 +422,6 @@
 
         
         function playHeartSound() {
-            // ... (Your heart sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -440,7 +440,6 @@
 
         
         function playDamageSound() {
-            // ... (Your damage sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -459,8 +458,6 @@
         function updateHealthDisplay() {
             healthDisplay.textContent = `❤️ Health: ${health}`;
         }
-
-        // --- NEW/FIXED LOGIC ---
 
         function checkCollision() {
             if (!isAlive) return;
@@ -490,7 +487,7 @@
                     if (health <= 0) {
                         gameOver();
                     }
-                    bullet.parentElement.removeChild(bullet);
+                    if (bullet.parentElement) bullet.parentElement.removeChild(bullet);
                 }
             });
 
@@ -504,10 +501,11 @@
                     playerRect.left < heartRect.right
                 ) {
                     // Heart collected
-                    health = Math.min(3, health + 1); // Max health is 3
+                    // 💥 FIX 4: Maximum health set to MAX_HEALTH (5)
+                    health = Math.min(MAX_HEALTH, health + 1); 
                     updateHealthDisplay();
                     playHeartSound();
-                    heart.parentElement.removeChild(heart);
+                    if (heart.parentElement) heart.parentElement.removeChild(heart);
                 }
             });
         }
@@ -517,18 +515,14 @@
             finalScoreDisplay.textContent = `Final Score: ${score}`;
             gameOverScreen.style.display = 'flex';
             backgroundMusic.pause();
-            // TODO: Add logic to save high score if needed
         }
 
         function gameLoop() {
             if (isAlive) {
                 checkCollision();
-                // Other update logic goes here
                 requestAnimationFrame(gameLoop);
             }
         }
-
-        // --- (Rest of your original functions) ---
 
         function createHeart() {
             if (!isAlive) return;
@@ -586,18 +580,20 @@
             updatePlayerPosition(touchY);
         });
 
-        // FIX 3: Ensures the plane reaches the absolute bottom edge
+        // 💥 FIX 5 (Final Attempt): Ensures the plane reaches the absolute bottom edge
         function updatePlayerPosition(y) {
             const containerRect = gameContainer.getBoundingClientRect();
             const playerHeight = player.offsetHeight;
 
             let newTop = y - containerRect.top;
 
-            const overshootAmount = playerHeight * 0.2; 
+            // Reduce overshoot for top, or set to 0 for exact top edge alignment
+            // Using 0.05 for a slight buffer, if 0 gives issues. Use 0 if 0.05 is not enough.
+            const overshootAmount = playerHeight * 0.05; 
 
             const minTop = -overshootAmount;
             
-            // CORRECTED Max Top: Allows the plane to touch the bottom edge
+            // CORRECTED Max Top: Allows the plane to touch the bottom edge without any extra offset
             const maxTop = containerRect.height - playerHeight; 
             
 
@@ -662,7 +658,7 @@
                 createBullet();
                 createHeart();
                 gameLoop(); // Start the main game loop
-                // Ensure music starts playing if user interacts
+                // 💥 FIX 3: Play music on start
                 backgroundMusic.play().catch(() => {});
             }
         }
@@ -679,17 +675,29 @@
             });
         }
         
-        // FIX 4: Delay start until user interaction to enable sounds (browser policy)
-        document.body.addEventListener('click', function setupAudio() {
+        // 💥 FIX 2: Start Game only after user interaction for sound/music policies
+        document.body.addEventListener('click', function setupAudioAndStart(e) {
+            // Check if it's the music button being clicked to avoid double-starting, but allow any other click
+            if (e.target.id === 'toggle-music') return; 
+            
             audioContext.resume().then(() => {
-                console.log('Audio Context Resumed');
-                document.body.removeEventListener('click', setupAudio);
+                document.body.removeEventListener('click', setupAudioAndStart);
                 startGame();
             });
         });
-        
-        // If the game needs to start immediately without interaction (e.g., for testing), use this instead of the click listener:
-        // window.onload = startGame; 
+
+        // Ensure the game starts if the user interacts with the music button first
+        toggleMusicButton.addEventListener('click', function startOnMusicToggle() {
+            if (!isAlive) return; // Don't start if game has already ended
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            if (backgroundMusic.paused) {
+                backgroundMusic.play().catch(() => {});
+                startGame(); // Start game routines if music button is the first click
+                toggleMusicButton.removeEventListener('click', startOnMusicToggle);
+            }
+        });
         
     </script>
 </body>
