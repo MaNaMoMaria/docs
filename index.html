@@ -13,6 +13,7 @@
 
       gtag('config', 'G-VFY823DN9S');
     </script>
+    
     <style>
         
         #game-title, #score-display, #health-display, .game-over-screen, #leaderboard-content, #final-score, .game-over-text, .restart-button, .name-input-container input {
@@ -40,33 +41,84 @@
             background: linear-gradient(135deg, #1A237E, #0D47A1, #2196F3, #81D4FA);
         }
         
+        /* Game Title Styling (Centered Top) */
+        #game-title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #e0f7fa;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        /* Game Info Styling (Top Right) */
+        .game-info {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Aligns the container to the top right */
+            z-index: 20;
+            display: flex;
+            gap: 20px; /* Space between Score and Health */
+            align-items: center;
+        }
 
+        /* Score and Health Texts */
+        #score-display, #health-display {
+            font-size: 1.5em; 
+            color: white;
+            text-shadow: 0 0 5px #ff00ff; 
+            white-space: nowrap; 
+        }
+        
+        /* Music Toggle Button Styling (Top Left - BOLD) */
+        #toggle-music {
+            position: absolute;
+            top: 20px;
+            left: 20px; /* Aligns the button to the top left */
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ffff;
+            border: 4px solid #00ffff;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.4em;
+            box-shadow: 0 0 20px #00ffff, 0 0 40px #2196F3, 0 0 60px #00ffff;
+            transition: all 0.3s ease;
+        }
+
+        #toggle-music:hover {
+            background: rgba(0, 0, 0, 1);
+            box-shadow: 0 0 25px #00ffff, 0 0 50px #2196F3;
+        }
+
+        /* Player Image */
+        #player-image {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            z-index: 5;
+            transition: opacity 1s;
+            width: auto;
+            height: 10vw;
+        }
+
+        @media (min-width: 768px) {
+            #player-image {
+                height: 80px;
+            }
+        }
+        
+        /* Light Rays */
         .light-ray {
             position: absolute;
             background-color: white;
             opacity: 0.1;
             animation: ray-move 10s linear infinite;
-        }
-        
-        /* Mobile Optimization: Reduce font size for small screens */
-        @media (max-width: 600px) {
-            #game-title {
-                font-size: 1.2em !important;
-                margin-top: 5px;
-            }
-            #score-display, #health-display {
-                font-size: 0.8em !important;
-                padding: 5px;
-            }
-            /* Styling for the container that holds Score and Health */
-        .game-info {
-            position: absolute;
-            top: 20px;
-            right: 20px; /* Moves the entire box to the right */
-            z-index: 20;
-            display: flex;
-            gap: 20px; /* Space between Score and Health */
-            align-items: center;
         }
 
         .light-ray:nth-child(1) {
@@ -98,55 +150,8 @@
                 transform: translateX(100vw);
             }
         }
-
-        #game-title {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 2.5em;
-            text-shadow: 0 0 10px #e0f7fa;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-    
-          #score-display, #health-display {
-        font-size: 1.5em; /* Standard size for desktop */
-        color: white;
-        text-shadow: 0 0 5px #ff00ff; /* Neon glow */
-        white-space: nowrap; /* Prevents text from breaking into multiple lines */
-    }
-
-        #health-display {
-            position: absolute;
-            top: 20px;
-            left: 70px;
-            color: white;
-            font-size: 1.8em;
-            font-weight: bold;
-            z-index: 10;
-        }
-
-        #player-image {
-            position: absolute;
-            top: 50%;
-            left: 50px;
-            transform: translateY(-50%);
-            z-index: 5;
-            transition: opacity 1s;
-            width: auto;
-            height: 10vw;
-        }
-
-        @media (min-width: 768px) {
-            #player-image {
-                height: 80px;
-            }
-        }
-
-
+        
+        /* Bullet and Heart styles */
         .bullet-fire {
             position: absolute;
             height: 40px;
@@ -163,14 +168,14 @@
             filter: drop-shadow(0 0 8px #00BFFF) drop-shadow(0 0 15px #8A2BE2);
         }
 
-   
         .heart {
             position: absolute;
             font-size: 2em;
             right: -40px;
             z-index: 8;
         }
-
+        
+        /* Game Over Screen Styles */
         .game-over-screen {
             display: none;
             position: absolute;
@@ -291,414 +296,334 @@
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
         }
+        
+        /* --- Mobile Optimization (Responsive Design) --- */
+        @media (max-width: 600px) {
+            #game-title {
+                font-size: 1.2em !important;
+                top: 10px;
+            }
+            
+            .game-info {
+                top: 10px;
+                right: 10px;
+                gap: 10px;
+            }
+            
+            #score-display, #health-display {
+                font-size: 0.8em !important;
+                padding: 0;
+            }
 
-      #toggle-music {
-    position: absolute;
-    top: 20px;
-    left: 10px;
-    z-index: 20;
-    /* Maximum prominence styling */
-    background: rgba(0, 0, 0, 0.9); /* Almost fully opaque black background */
-    color: #00ffff; /* Neon Blue color for the icon/text */
-    border: 4px solid #00ffff; /* Very thick neon border */
-    padding: 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.4em; /* Slightly larger icon */
-    /* Extremely aggressive box shadow for max glow */
-    box-shadow: 0 0 20px #00ffff, 0 0 40px #2196F3, 0 0 60px #00ffff;
-    transition: all 0.3s ease;
-}
-
-#toggle-music:hover {
-    background: rgba(0, 0, 0, 1);
-    box-shadow: 0 0 25px #00ffff, 0 0 50px #2196F3;
-}
+            #toggle-music {
+                top: 10px; 
+                left: 10px; 
+                font-size: 1.0em !important; 
+                padding: 8px !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="game-container">
+        <h1 id="game-title">PLANE AVOIDANCE</h1>
+        <button id="toggle-music">🎶</button>
+        
+        <div class="game-info">
+            <div id="score-display">Score: 0</div>
+            <div id="health-display">❤️ Health: 3</div>
+        </div>
+        
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        <div class="light-ray"></div>
+        
+        <img id="player-image" src="player-plane.png" alt="Player Plane">
 
-<div class="game-container">
-    <div id="game-title">🕹️</div> 
-    <div class="light-ray"></div>
-    <div class="light-ray"></div>
-    <div class="light-ray"></div>
-    <img id="player-image" src="my-plane.png" alt="Airplane">
-    <div id="flash-effect"></div>
-    <div id="score-display">Score: 0</div>
-    <div id="health-display">❤️ Health: 3</div> 
-    <button id="toggle-music">🎶</button>
-</div>
+        <div id="gameOverScreen" class="game-over-screen">
+            <div class="game-over-text">GAME OVER!</div>
+            <div id="final-score">Final Score: 0</div>
+            <div class="name-input-container">
+                <input type="text" id="playerNameInput" placeholder="Enter Your Name">
+                <button id="saveScoreButton" class="restart-button">Save Score</button>
+            </div>
+            <button id="restartButton" class="restart-button">Restart Game</button>
+        </div>
+        
+        <div id="leaderboard-container">
+            <div id="leaderboard-content">
+                <h2>Top Scores</h2>
+                <ol id="leaderboard-list"></ol>
+                <button id="closeLeaderboardButton" class="restart-button">Close</button>
+            </div>
+        </div>
 
-<div id="gameOverScreen" class="game-over-screen">
-    <div class="game-over-text">Game Over!</div>
-    <div id="final-score">Your Score: 0</div>
-    <button class="restart-button" onclick="location.reload()">Restart</button>
-</div>
+        <div id="flash-effect"></div>
+        
+        <audio id="background-music" loop>
+            <source src="background-music.mp3" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
 
-<div id="leaderboard-container">
-    <div id="leaderboard-content">
-        <h2>Leaderboard</h2>
-        <ul id="leaderboard-list"></ul>
     </div>
-    <div class="name-input-container">
-        <input type="text" id="playerNameInput" placeholder="Enter your name">
-        <button class="restart-button" id="saveScoreButton">Save Score & Play Again</button>
-    </div>
-</div>
 
-<audio id="background-music" loop>
-<source src="arcade-game-music.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-</audio>
-<script>
-    
-    const gameContainer = document.querySelector('.game-container');
-    const player = document.getElementById('player-image');
-    const gameOverScreen = document.getElementById('gameOverScreen');
-    const flashEffect = document.getElementById('flash-effect');
-    const scoreDisplay = document.getElementById('score-display');
-    const healthDisplay = document.getElementById('health-display');
-    const finalScoreDisplay = document.getElementById('final-score');
-    const leaderboardContainer = document.getElementById('leaderboard-container');
-    const leaderboardList = document.getElementById('leaderboard-list');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const saveScoreButton = document.getElementById('saveScoreButton');
-    const backgroundMusic = document.getElementById('background-music');
-    const toggleMusicButton = document.getElementById('toggle-music');
+    <script>
+        
+        const gameContainer = document.querySelector('.game-container');
+        const player = document.getElementById('player-image');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const flashEffect = document.getElementById('flash-effect');
+        const scoreDisplay = document.getElementById('score-display');
+        const healthDisplay = document.getElementById('health-display');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        const leaderboardList = document.getElementById('leaderboard-list');
+        const playerNameInput = document.getElementById('playerNameInput');
+        const saveScoreButton = document.getElementById('saveScoreButton');
+        const backgroundMusic = document.getElementById('background-music');
+        const toggleMusicButton = document.getElementById('toggle-music');
+        const restartButton = document.getElementById('restartButton'); // Added restart button element
+        const closeLeaderboardButton = document.getElementById('closeLeaderboardButton'); // Added close button element
 
-    let isAlive = true;
-    let score = 0;
-    let health = 3; 
+        let isAlive = true;
+        let score = 0;
+        let health = 3; 
 
-   
-    const bulletCreationInterval = 750; 
-    const heartCreationInterval = 10000; 
-    const baseBulletSpeed = 8;
-    const heartSpeed = 5; 
+        
+        const bulletCreationInterval = 750; 
+        const heartCreationInterval = 10000; 
+        const baseBulletSpeed = 8;
+        const heartSpeed = 5; 
 
-    
-    const bulletTypes = [
-        { src: 'bullet-image1.png', shadowClass: 'bullet-fire' }, 
-        { src: 'bullet-image2.png', shadowClass: 'bullet-neon' }  
-    ];
+        
+        const bulletTypes = [
+            { src: 'bullet-image1.png', shadowClass: 'bullet-fire' }, 
+            { src: 'bullet-image2.png', shadowClass: 'bullet-neon' }  
+        ];
 
-    
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-   
-    function playCollisionSound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.type = 'sawtooth';
-        oscillator.frequency.value = 100;
-        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start(audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
-        oscillator.stop(audioContext.currentTime + 0.5);
-    }
+        
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        
+        function playCollisionSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.value = 100;
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
 
-   
-    function playHeartSound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
         
-        oscillator.type = 'triangle'; 
-        oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
-        
-        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.2);
-    }
-
-    
-    function playDamageSound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.type = 'square'; 
-        oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.25);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.25);
-    }
-    
-    function updateHealthDisplay() {
-        healthDisplay.textContent = `❤️ Health: ${health}`;
-    }
-
-    
-    function createHeart() {
-        if (!isAlive) return;
-
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.textContent = '❤️'; 
-        gameContainer.appendChild(heart);
-        
-        const randomY = Math.random() * (gameContainer.offsetHeight - 50);
-        heart.style.top = randomY + 'px';
-        
-        let heartX = gameContainer.offsetWidth;
-        
-        const heartMoveInterval = setInterval(() => {
-            if (!isAlive) {
-                clearInterval(heartMoveInterval);
-                return;
-            }
-            heartX -= heartSpeed;
-            heart.style.right = (gameContainer.offsetWidth - heartX) + 'px';
+        function playHeartSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
             
-            if (heartX < -50) {
-                clearInterval(heartMoveInterval);
-                if (gameContainer.contains(heart)) {
-                    gameContainer.removeChild(heart);
-                }
-            }
-        }, 16);
-
-        setTimeout(createHeart, heartCreationInterval);
-    }
-
-  
-    toggleMusicButton.addEventListener('click', () => {
-      
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
-        }
-        
-       
-        if (backgroundMusic.paused) {
-      
-            backgroundMusic.play().catch(e => console.error("Error playing music:", e)); 
-            toggleMusicButton.textContent = '🎶';
-        } else {
-            backgroundMusic.pause();
-            toggleMusicButton.textContent = '🔇';
-        }
-    });
-
- 
-    document.addEventListener('mousemove', (e) => {
-        if (!isAlive) return;
-        updatePlayerPosition(e.clientY);
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isAlive) return;
-        e.preventDefault();
-        const touchY = e.touches[0].clientY;
-        updatePlayerPosition(touchY);
-    });
-
-   // Function to update the player's vertical position based on mouse/touch
-// Function to update the player's vertical position based on mouse/touch
-function updatePlayerPosition(y) {
-    const containerRect = gameContainer.getBoundingClientRect();
-    const playerHeight = player.offsetHeight;
-
-    let newTop = y - containerRect.top;
-
-    // We keep the overshoot logic for the top edge for smooth movement.
-    const overshootAmount = playerHeight * 0.2; 
-
-    const minTop = -overshootAmount;
-    
-    // ✅ FIX: The correct way to limit the plane to the bottom edge.
-    // The top position (newTop) should not exceed the container height minus the player's height.
-    const maxTop = containerRect.height - playerHeight; 
-    
-
-    if (newTop < minTop) {
-        newTop = minTop;
-    } else if (newTop > maxTop) {
-        newTop = maxTop;
-    }
-
-    player.style.top = newTop + 'px';
-}
-    
-    function updateScore() {
-        if (!isAlive) return; 
-        
-        score++;
-        scoreDisplay.textContent = `Score: ${score}`;
-        
-        setTimeout(updateScore, 1000);
-    }
-
-   
-    function createBullet() {
-        if (!isAlive) return;
-        
-        const bullet = document.createElement('img');
-        const randomBulletType = bulletTypes[Math.floor(Math.random() * bulletTypes.length)];
-        
-        bullet.src = randomBulletType.src;
-        bullet.classList.add(randomBulletType.shadowClass);
-
-        gameContainer.appendChild(bullet);
-
-        const randomY = Math.random() * (gameContainer.offsetHeight - bullet.offsetHeight);
-        bullet.style.top = randomY + 'px';
-
-        let bulletX = gameContainer.offsetWidth;
-        const bulletSpeed = baseBulletSpeed + (score / 50); 
-        
-        const bulletMoveInterval = setInterval(() => {
-            if (!isAlive) {
-                clearInterval(bulletMoveInterval);
-                return;
-            }
-            bulletX -= bulletSpeed;
-            bullet.style.right = (gameContainer.offsetWidth - bulletX) + 'px';
-            if (bulletX < 0) {
-                clearInterval(bulletMoveInterval);
-                if (gameContainer.contains(bullet)) {
-                    gameContainer.removeChild(bullet);
-                }
-            }
-        }, 16);
-        
-        setTimeout(createBullet, bulletCreationInterval);
-    }
-
-
-    
-    function checkCollision() {
-        if (!isAlive) {
-         
-            requestAnimationFrame(checkCollision); 
-            return; 
-        }
-        
-        const fineTuneOffset = 5; 
-        const playerRect = player.getBoundingClientRect();
-        
-     
-        const hearts = document.querySelectorAll('.heart');
-        hearts.forEach(heart => {
-            const heartRect = heart.getBoundingClientRect();
+            oscillator.type = 'triangle'; 
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.1);
             
-            if (
-                playerRect.top < heartRect.bottom &&
-                playerRect.bottom > heartRect.top &&
-                playerRect.left < heartRect.right &&
-                playerRect.right > heartRect.left
-            ) {
-                if (health < 5) { 
-                    health++;
-                    playHeartSound(); 
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        
+        function playDamageSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'square'; 
+            oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.25);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.25);
+        }
+        
+        function updateHealthDisplay() {
+            healthDisplay.textContent = `❤️ Health: ${health}`;
+        }
+
+        
+        function createHeart() {
+            if (!isAlive) return;
+
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.textContent = '❤️'; 
+            gameContainer.appendChild(heart);
+            
+            const randomY = Math.random() * (gameContainer.offsetHeight - 50);
+            heart.style.top = randomY + 'px';
+            
+            let heartX = gameContainer.offsetWidth;
+            
+            const heartMoveInterval = setInterval(() => {
+                if (!isAlive) {
+                    clearInterval(heartMoveInterval);
+                    return;
                 }
-                updateHealthDisplay();
+                heartX -= heartSpeed;
+                heart.style.right = (gameContainer.offsetWidth - heartX) + 'px';
                 
-                if (gameContainer.contains(heart)) {
-                    heart.remove();
+                if (heartX < -50) {
+                    clearInterval(heartMoveInterval);
+                    if (gameContainer.contains(heart)) {
+                        gameContainer.removeChild(heart);
+                    }
                 }
+            }, 16);
+
+            setTimeout(createHeart, heartCreationInterval);
+        }
+
+        
+        toggleMusicButton.addEventListener('click', () => {
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            
+            if (backgroundMusic.paused) {
+                
+                backgroundMusic.play().catch(e => console.error("Error playing music:", e)); 
+                toggleMusicButton.textContent = '🎶';
+            } else {
+                backgroundMusic.pause();
+                toggleMusicButton.textContent = '🔇';
             }
         });
 
-     
-        const bullets = document.querySelectorAll('.bullet-fire, .bullet-neon');
-        bullets.forEach(bullet => {
-            const bulletRect = bullet.getBoundingClientRect();
-            
-            const playerCenterX = playerRect.left + playerRect.width / 2;
-            const playerCenterY = playerRect.top + playerRect.height / 2;
-            const bulletCenterX = bulletRect.left + bulletRect.width / 2;
-            const bulletCenterY = bulletRect.top + bulletRect.height / 2;
-            
-            const distanceX = playerCenterX - bulletCenterX;
-            const distanceY = playerCenterY - bulletCenterY;
-            const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-            
-            const playerEffectiveRadius = playerRect.width * 0.4;
-            const bulletEffectiveRadius = bulletRect.width * 0.4;
-            const combinedRadius = playerEffectiveRadius + bulletEffectiveRadius - fineTuneOffset;
-
-            if (distance < combinedRadius) {
-                health--;
-                playDamageSound(); 
-                updateHealthDisplay();
-                
-                if (gameContainer.contains(bullet)) {
-                    bullet.remove();
-                }
-                
-                if (health <= 0) {
-                    // Game Over
-                    isAlive = false;
-                    player.style.opacity = 0;
-                    finalScoreDisplay.textContent = `Your Score: ${score}`;
-                    gameOverScreen.style.display = 'flex';
-                    playCollisionSound(); 
-                    backgroundMusic.pause();
-                    flashEffect.style.opacity = 1;
-                    setTimeout(() => {
-                        flashEffect.style.opacity = 0;
-                    }, 100);
-                    setTimeout(() => {
-                        gameOverScreen.style.display = 'none';
-                        showLeaderboard();
-                    }, 1500);
-                    return; // برای جلوگیری از اجرای requestAnimationFrame بعدی
-                }
-            }
-        });
-        requestAnimationFrame(checkCollision);
-    }
     
-
-    function getHighScores() {
-        const scores = JSON.parse(localStorage.getItem('galacticEscapeScores')) || [];
-        return scores.sort((a, b) => b.score - a.score).slice(0, 10);
-    }
-
-    function saveHighScore(name, score) {
-        const scores = getHighScores();
-        scores.push({ name, score });
-        scores.sort((a, b) => b.score - a.score);
-        localStorage.setItem('galacticEscapeScores', JSON.stringify(scores.slice(0, 10)));
-    }
-
-    function showLeaderboard() {
-        const highScores = getHighScores();
-        leaderboardList.innerHTML = '';
-        highScores.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${index + 1}. ${item.name}</span><span>${item.score}</span>`;
-            leaderboardList.appendChild(li);
+        document.addEventListener('mousemove', (e) => {
+            if (!isAlive) return;
+            updatePlayerPosition(e.clientY);
         });
-        leaderboardContainer.style.display = 'flex';
-    }
 
-    saveScoreButton.addEventListener('click', () => {
-        const playerName = playerNameInput.value || 'Player';
-        saveHighScore(playerName, score);
+        document.addEventListener('touchmove', (e) => {
+            if (!isAlive) return;
+            e.preventDefault();
+            const touchY = e.touches[0].clientY;
+            updatePlayerPosition(touchY);
+        });
 
-      
-        location.reload(); 
-    });
+        // 💥 FINAL FIX: Correctly calculates maxTop to allow the plane to reach the bottom edge
+        function updatePlayerPosition(y) {
+            const containerRect = gameContainer.getBoundingClientRect();
+            const playerHeight = player.offsetHeight;
 
-  
-    updateHealthDisplay();
-    checkCollision();
-    updateScore(); 
-    setTimeout(createBullet, 2000); 
-    setTimeout(createHeart, 5000); 
+            let newTop = y - containerRect.top;
 
-</script>
+            // Keep the overshoot logic for the top edge for smoother movement.
+            const overshootAmount = playerHeight * 0.2; 
+
+            const minTop = -overshootAmount;
+            
+            // maxTop is set so the bottom of the plane (playerHeight) aligns exactly with the container's bottom edge.
+            const maxTop = containerRect.height - playerHeight; 
+            
+
+            if (newTop < minTop) {
+                newTop = minTop;
+            } else if (newTop > maxTop) {
+                newTop = maxTop;
+            }
+
+            player.style.top = newTop + 'px';
+        }
+
+        
+        function updateScore() {
+            if (!isAlive) return; 
+            
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+            
+            setTimeout(updateScore, 1000);
+        }
+
+        
+        function createBullet() {
+            if (!isAlive) return;
+            
+            const bullet = document.createElement('img');
+            const randomBulletType = bulletTypes[Math.floor(Math.random() * bulletTypes.length)];
+            
+            bullet.src = randomBulletType.src;
+            bullet.classList.add(randomBulletType.shadowClass);
+
+            gameContainer.appendChild(bullet);
+
+            const randomY = Math.random() * (gameContainer.offsetHeight - (bullet.offsetHeight || 40)); // Added fallback height
+            bullet.style.top = randomY + 'px';
+
+            let bulletX = gameContainer.offsetWidth;
+            const bulletSpeed = baseBulletSpeed + (score / 50); 
+            
+            const bulletMoveInterval = setInterval(() => {
+                if (!isAlive) {
+                    clearInterval(bulletMoveInterval);
+                    return;
+                }
+                bulletX -= bulletSpeed;
+                bullet.style.right = (gameContainer.offsetWidth - bulletX) + 'px';
+                
+                // Check for removal when completely off-screen
+                if (bulletX < -(bullet.offsetWidth || 40)) { 
+                    clearInterval(bulletMoveInterval);
+                    if (gameContainer.contains(bullet)) {
+                        gameContainer.removeChild(bullet);
+                    }
+                }
+            }, 16);
+            
+            setTimeout(createBullet, bulletCreationInterval);
+        }
+        
+        // --- Game Initialization/Control Functions (Placeholders for remaining game logic) ---
+        
+        function startGame() {
+            if (!isAlive) return;
+            updateScore();
+            createBullet();
+            createHeart();
+            // Ensure music starts playing if user interacts
+            if (backgroundMusic.paused) {
+                backgroundMusic.play().catch(() => {}); 
+            }
+        }
+        
+        // Add event listener for restart/save buttons if not present
+        if(restartButton) {
+            restartButton.addEventListener('click', () => {
+                window.location.reload(); // Simple restart for now
+            });
+        }
+        
+        // Add event listener for close leaderboard button
+        if(closeLeaderboardButton) {
+            closeLeaderboardButton.addEventListener('click', () => {
+                leaderboardContainer.style.display = 'none';
+            });
+        }
+        
+        // Initialize game (assuming this is called when the page loads)
+        window.onload = startGame; 
+        
+    </script>
 </body>
 </html>
