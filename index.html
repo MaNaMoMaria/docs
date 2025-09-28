@@ -14,7 +14,7 @@
       gtag('config', 'G-VFY823DN9S');
     </script>
     <style>
-      
+        
         #game-title, #score-display, #health-display, .game-over-screen, #leaderboard-content, #final-score, .game-over-text, .restart-button, .name-input-container input {
             font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
             font-weight: bold; 
@@ -37,7 +37,6 @@
             border: none;
             position: relative;
             overflow: hidden;
-            /* پس‌زمینه کهکشانی */
             background: linear-gradient(135deg, #1A237E, #0D47A1, #2196F3, #81D4FA);
         }
         
@@ -48,6 +47,24 @@
             opacity: 0.1;
             animation: ray-move 10s linear infinite;
         }
+        
+        /* Mobile Optimization: Reduce font size for small screens */
+        @media (max-width: 600px) {
+            #game-title {
+                font-size: 1.2em !important;
+                margin-top: 5px;
+            }
+            #score-display, #health-display {
+                font-size: 0.8em !important;
+                padding: 5px;
+            }
+            .game-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
 
         .light-ray:nth-child(1) {
             width: 200vw;
@@ -293,7 +310,7 @@
 <body>
 
 <div class="game-container">
-    <div id="game-title">🕹️plane🕹️</div> 
+    <div id="game-title">🕹️</div> 
     <div class="light-ray"></div>
     <div class="light-ray"></div>
     <div class="light-ray"></div>
