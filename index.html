@@ -291,19 +291,28 @@
             color: white;
         }
 
-        #toggle-music {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 20;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2em;
-        }
+      #toggle-music {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 20;
+    /* Maximum prominence styling */
+    background: rgba(0, 0, 0, 0.9); /* Almost fully opaque black background */
+    color: #00ffff; /* Neon Blue color for the icon/text */
+    border: 4px solid #00ffff; /* Very thick neon border */
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4em; /* Slightly larger icon */
+    /* Extremely aggressive box shadow for max glow */
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #2196F3, 0 0 60px #00ffff;
+    transition: all 0.3s ease;
+}
+
+#toggle-music:hover {
+    background: rgba(0, 0, 0, 1);
+    box-shadow: 0 0 25px #00ffff, 0 0 50px #2196F3;
+}
     </style>
 </head>
 <body>
@@ -493,26 +502,31 @@
         updatePlayerPosition(touchY);
     });
 
-    function updatePlayerPosition(y) {
-        const containerRect = gameContainer.getBoundingClientRect();
-        const playerHeight = player.offsetHeight;
+   // Function to update the player's vertical position based on mouse/touch
+function updatePlayerPosition(y) {
+    const containerRect = gameContainer.getBoundingClientRect();
+    const playerHeight = player.offsetHeight;
 
-        let newTop = y - containerRect.top;
+    let newTop = y - containerRect.top;
 
-        const overshootAmount = playerHeight * 0.2; 
+    // We keep the overshoot logic for the top edge for smooth movement.
+    const overshootAmount = playerHeight * 0.2; 
 
-        const minTop = -overshootAmount;
-        const maxTop = containerRect.height - playerHeight + overshootAmount;
+    const minTop = -overshootAmount;
+    
+    // 💥 FIX: Maximum Top position allows the bottom of the plane (playerHeight) to touch the bottom of the container (containerRect.height).
+    // We remove the overshootAmount from maxTop to ensure the plane can reach the very bottom edge.
+    const maxTop = containerRect.height - playerHeight; 
+    
 
-        if (newTop < minTop) {
-            newTop = minTop;
-        } else if (newTop > maxTop) {
-            newTop = maxTop;
-        }
-
-        player.style.top = newTop + 'px';
+    if (newTop < minTop) {
+        newTop = minTop;
+    } else if (newTop > maxTop) {
+        newTop = maxTop;
     }
 
+    player.style.top = newTop + 'px';
+}
     
     function updateScore() {
         if (!isAlive) return; 
