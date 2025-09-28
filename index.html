@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🕹️plane🕹️</title>
+    <title>🕹️plane🕹️</title> 
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VFY823DN9S"></script>
     <script>
@@ -326,7 +326,7 @@
 </head>
 <body>
     <div class="game-container">
-        <h1 id="game-title">PLANE AVOIDANCE</h1>
+        <h1 id="game-title">🕹️</h1> 
         <button id="toggle-music">🎶</button>
         
         <div class="game-info">
@@ -338,7 +338,7 @@
         <div class="light-ray"></div>
         <div class="light-ray"></div>
         
-        <img id="player-image" src="player-plane.png" alt="Player Plane">
+        <img id="player-image" src="my-plane.png" alt="Player Plane">
 
         <div id="gameOverScreen" class="game-over-screen">
             <div class="game-over-text">GAME OVER!</div>
@@ -382,8 +382,8 @@
         const saveScoreButton = document.getElementById('saveScoreButton');
         const backgroundMusic = document.getElementById('background-music');
         const toggleMusicButton = document.getElementById('toggle-music');
-        const restartButton = document.getElementById('restartButton'); // Added restart button element
-        const closeLeaderboardButton = document.getElementById('closeLeaderboardButton'); // Added close button element
+        const restartButton = document.getElementById('restartButton'); 
+        const closeLeaderboardButton = document.getElementById('closeLeaderboardButton'); 
 
         let isAlive = true;
         let score = 0;
@@ -521,7 +521,7 @@
             updatePlayerPosition(touchY);
         });
 
-        // 💥 FINAL FIX: Correctly calculates maxTop to allow the plane to reach the bottom edge
+        // 💥 FINAL FIX 4: Ensured the plane reaches the absolute bottom edge
         function updatePlayerPosition(y) {
             const containerRect = gameContainer.getBoundingClientRect();
             const playerHeight = player.offsetHeight;
@@ -533,7 +533,7 @@
 
             const minTop = -overshootAmount;
             
-            // maxTop is set so the bottom of the plane (playerHeight) aligns exactly with the container's bottom edge.
+            // Set maxTop so the bottom of the plane aligns exactly with the container's bottom edge.
             const maxTop = containerRect.height - playerHeight; 
             
 
@@ -568,7 +568,7 @@
 
             gameContainer.appendChild(bullet);
 
-            const randomY = Math.random() * (gameContainer.offsetHeight - (bullet.offsetHeight || 40)); // Added fallback height
+            const randomY = Math.random() * (gameContainer.offsetHeight - (bullet.offsetHeight || 40)); 
             bullet.style.top = randomY + 'px';
 
             let bulletX = gameContainer.offsetWidth;
@@ -594,34 +594,30 @@
             setTimeout(createBullet, bulletCreationInterval);
         }
         
-        // --- Game Initialization/Control Functions (Placeholders for remaining game logic) ---
+        // --- Game Initialization/Control Functions ---
         
         function startGame() {
             if (!isAlive) return;
             updateScore();
             createBullet();
             createHeart();
-            // Ensure music starts playing if user interacts
             if (backgroundMusic.paused) {
                 backgroundMusic.play().catch(() => {}); 
             }
         }
         
-        // Add event listener for restart/save buttons if not present
         if(restartButton) {
             restartButton.addEventListener('click', () => {
-                window.location.reload(); // Simple restart for now
+                window.location.reload(); 
             });
         }
         
-        // Add event listener for close leaderboard button
         if(closeLeaderboardButton) {
             closeLeaderboardButton.addEventListener('click', () => {
                 leaderboardContainer.style.display = 'none';
             });
         }
         
-        // Initialize game (assuming this is called when the page loads)
         window.onload = startGame; 
         
     </script>
