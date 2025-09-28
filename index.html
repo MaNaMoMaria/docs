@@ -58,10 +58,10 @@
         .game-info {
             position: absolute;
             top: 20px;
-            right: 20px; /* Aligns the container to the top right */
+            right: 20px; 
             z-index: 20;
             display: flex;
-            gap: 20px; /* Space between Score and Health */
+            gap: 20px; 
             align-items: center;
         }
 
@@ -77,7 +77,7 @@
         #toggle-music {
             position: absolute;
             top: 20px;
-            left: 20px; /* Aligns the button to the top left */
+            left: 20px; 
             z-index: 20;
             background: rgba(0, 0, 0, 0.9);
             color: #00ffff;
@@ -406,6 +406,7 @@
         
         
         function playCollisionSound() {
+            // ... (Your collision sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             oscillator.type = 'sawtooth';
@@ -420,6 +421,7 @@
 
         
         function playHeartSound() {
+            // ... (Your heart sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -438,6 +440,7 @@
 
         
         function playDamageSound() {
+            // ... (Your damage sound logic)
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -457,10 +460,78 @@
             healthDisplay.textContent = `❤️ Health: ${health}`;
         }
 
-        
-        function createHeart() {
+        // --- NEW/FIXED LOGIC ---
+
+        function checkCollision() {
             if (!isAlive) return;
 
+            const playerRect = player.getBoundingClientRect();
+            const bullets = gameContainer.querySelectorAll('.bullet-fire, .bullet-neon');
+            const hearts = gameContainer.querySelectorAll('.heart');
+
+            // Collision with Bullets (Damage)
+            bullets.forEach(bullet => {
+                const bulletRect = bullet.getBoundingClientRect();
+                if (
+                    playerRect.top < bulletRect.bottom &&
+                    playerRect.bottom > bulletRect.top &&
+                    playerRect.right > bulletRect.left &&
+                    playerRect.left < bulletRect.right
+                ) {
+                    // Collision detected
+                    if(health > 0) {
+                        health--;
+                        updateHealthDisplay();
+                        playDamageSound();
+                        // Visual Feedback (Flash)
+                        flashEffect.style.opacity = 1;
+                        setTimeout(() => flashEffect.style.opacity = 0, 100);
+                    }
+                    if (health <= 0) {
+                        gameOver();
+                    }
+                    bullet.parentElement.removeChild(bullet);
+                }
+            });
+
+            // Collision with Hearts (Heal)
+            hearts.forEach(heart => {
+                const heartRect = heart.getBoundingClientRect();
+                if (
+                    playerRect.top < heartRect.bottom &&
+                    playerRect.bottom > heartRect.top &&
+                    playerRect.right > heartRect.left &&
+                    playerRect.left < heartRect.right
+                ) {
+                    // Heart collected
+                    health = Math.min(3, health + 1); // Max health is 3
+                    updateHealthDisplay();
+                    playHeartSound();
+                    heart.parentElement.removeChild(heart);
+                }
+            });
+        }
+        
+        function gameOver() {
+            isAlive = false;
+            finalScoreDisplay.textContent = `Final Score: ${score}`;
+            gameOverScreen.style.display = 'flex';
+            backgroundMusic.pause();
+            // TODO: Add logic to save high score if needed
+        }
+
+        function gameLoop() {
+            if (isAlive) {
+                checkCollision();
+                // Other update logic goes here
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // --- (Rest of your original functions) ---
+
+        function createHeart() {
+            if (!isAlive) return;
             const heart = document.createElement('div');
             heart.classList.add('heart');
             heart.textContent = '❤️'; 
@@ -470,10 +541,10 @@
             heart.style.top = randomY + 'px';
             
             let heartX = gameContainer.offsetWidth;
-            
             const heartMoveInterval = setInterval(() => {
                 if (!isAlive) {
                     clearInterval(heartMoveInterval);
+                    if (gameContainer.contains(heart)) gameContainer.removeChild(heart);
                     return;
                 }
                 heartX -= heartSpeed;
@@ -481,9 +552,7 @@
                 
                 if (heartX < -50) {
                     clearInterval(heartMoveInterval);
-                    if (gameContainer.contains(heart)) {
-                        gameContainer.removeChild(heart);
-                    }
+                    if (gameContainer.contains(heart)) gameContainer.removeChild(heart);
                 }
             }, 16);
 
@@ -492,14 +561,10 @@
 
         
         toggleMusicButton.addEventListener('click', () => {
-            
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
-            
-            
             if (backgroundMusic.paused) {
-                
                 backgroundMusic.play().catch(e => console.error("Error playing music:", e)); 
                 toggleMusicButton.textContent = '🎶';
             } else {
@@ -521,19 +586,18 @@
             updatePlayerPosition(touchY);
         });
 
-        // 💥 FINAL FIX 4: Ensured the plane reaches the absolute bottom edge
+        // FIX 3: Ensures the plane reaches the absolute bottom edge
         function updatePlayerPosition(y) {
             const containerRect = gameContainer.getBoundingClientRect();
             const playerHeight = player.offsetHeight;
 
             let newTop = y - containerRect.top;
 
-            // Keep the overshoot logic for the top edge for smoother movement.
             const overshootAmount = playerHeight * 0.2; 
 
             const minTop = -overshootAmount;
             
-            // Set maxTop so the bottom of the plane aligns exactly with the container's bottom edge.
+            // CORRECTED Max Top: Allows the plane to touch the bottom edge
             const maxTop = containerRect.height - playerHeight; 
             
 
@@ -549,10 +613,8 @@
         
         function updateScore() {
             if (!isAlive) return; 
-            
             score++;
             scoreDisplay.textContent = `Score: ${score}`;
-            
             setTimeout(updateScore, 1000);
         }
 
@@ -577,17 +639,15 @@
             const bulletMoveInterval = setInterval(() => {
                 if (!isAlive) {
                     clearInterval(bulletMoveInterval);
+                    if (gameContainer.contains(bullet)) gameContainer.removeChild(bullet);
                     return;
                 }
                 bulletX -= bulletSpeed;
                 bullet.style.right = (gameContainer.offsetWidth - bulletX) + 'px';
                 
-                // Check for removal when completely off-screen
                 if (bulletX < -(bullet.offsetWidth || 40)) { 
                     clearInterval(bulletMoveInterval);
-                    if (gameContainer.contains(bullet)) {
-                        gameContainer.removeChild(bullet);
-                    }
+                    if (gameContainer.contains(bullet)) gameContainer.removeChild(bullet);
                 }
             }, 16);
             
@@ -597,12 +657,13 @@
         // --- Game Initialization/Control Functions ---
         
         function startGame() {
-            if (!isAlive) return;
-            updateScore();
-            createBullet();
-            createHeart();
-            if (backgroundMusic.paused) {
-                backgroundMusic.play().catch(() => {}); 
+            if (isAlive) {
+                updateScore();
+                createBullet();
+                createHeart();
+                gameLoop(); // Start the main game loop
+                // Ensure music starts playing if user interacts
+                backgroundMusic.play().catch(() => {});
             }
         }
         
@@ -618,7 +679,17 @@
             });
         }
         
-        window.onload = startGame; 
+        // FIX 4: Delay start until user interaction to enable sounds (browser policy)
+        document.body.addEventListener('click', function setupAudio() {
+            audioContext.resume().then(() => {
+                console.log('Audio Context Resumed');
+                document.body.removeEventListener('click', setupAudio);
+                startGame();
+            });
+        });
+        
+        // If the game needs to start immediately without interaction (e.g., for testing), use this instead of the click listener:
+        // window.onload = startGame; 
         
     </script>
 </body>
