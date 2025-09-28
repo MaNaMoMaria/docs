@@ -58,12 +58,16 @@
                 font-size: 0.8em !important;
                 padding: 5px;
             }
-            .game-info {
-                flex-direction: column;
-                gap: 5px;
-            }
+            /* Styling for the container that holds Score and Health */
+        .game-info {
+            position: absolute;
+            top: 20px;
+            right: 20px; /* Moves the entire box to the right */
+            z-index: 20;
+            display: flex;
+            gap: 20px; /* Space between Score and Health */
+            align-items: center;
         }
-
 
         .light-ray:nth-child(1) {
             width: 200vw;
@@ -107,16 +111,13 @@
             white-space: nowrap;
         }
 
-
-        #score-display {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 1.8em;
-            z-index: 10;
-        }
-
+    
+          #score-display, #health-display {
+        font-size: 1.5em; /* Standard size for desktop */
+        color: white;
+        text-shadow: 0 0 5px #ff00ff; /* Neon glow */
+        white-space: nowrap; /* Prevents text from breaking into multiple lines */
+    }
 
         #health-display {
             position: absolute;
@@ -294,7 +295,7 @@
       #toggle-music {
     position: absolute;
     top: 20px;
-    left: 20px;
+    left: 10px;
     z-index: 20;
     /* Maximum prominence styling */
     background: rgba(0, 0, 0, 0.9); /* Almost fully opaque black background */
@@ -503,6 +504,7 @@
     });
 
    // Function to update the player's vertical position based on mouse/touch
+// Function to update the player's vertical position based on mouse/touch
 function updatePlayerPosition(y) {
     const containerRect = gameContainer.getBoundingClientRect();
     const playerHeight = player.offsetHeight;
@@ -514,8 +516,8 @@ function updatePlayerPosition(y) {
 
     const minTop = -overshootAmount;
     
-    // 💥 FIX: Maximum Top position allows the bottom of the plane (playerHeight) to touch the bottom of the container (containerRect.height).
-    // We remove the overshootAmount from maxTop to ensure the plane can reach the very bottom edge.
+    // ✅ FIX: The correct way to limit the plane to the bottom edge.
+    // The top position (newTop) should not exceed the container height minus the player's height.
     const maxTop = containerRect.height - playerHeight; 
     
 
